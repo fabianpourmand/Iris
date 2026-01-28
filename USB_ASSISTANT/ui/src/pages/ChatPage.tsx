@@ -684,9 +684,9 @@ export function ChatPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col xl:flex-row xl:items-stretch min-w-0 min-h-0 bg-transparent overflow-hidden gap-5 xl:gap-6 p-4 sm:p-5 lg:p-6">
+    <div className="flex-1 flex flex-col xl:flex-row xl:items-stretch min-w-0 min-h-0 bg-transparent overflow-hidden gap-3 sm:gap-4 md:gap-5 xl:gap-6 p-3 sm:p-4 md:p-5 lg:p-6">
       {showLeftPanel && (
-        <aside className="hidden xl:flex w-64 border border-[var(--border)] bg-[var(--glass)] backdrop-blur-md flex-col animate-heritage shrink-0 overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(45,42,35,0.08)]">
+        <aside className="hidden xl:flex w-48 border border-[var(--border)] bg-[var(--glass)] backdrop-blur-md flex-col animate-heritage shrink-0 overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(45,42,35,0.08)]">
           <div className="p-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--glass-strong)]">
             <h2 className="text-base font-bold text-[var(--ink)] uppercase tracking-[0.2em] font-mono">Conversations</h2>
             <button onClick={() => handleNewChat()} className="p-3 rounded-lg border border-[var(--border)] bg-[var(--glass-strong)] hover:bg-[var(--paper-2)] transition-all">
@@ -700,11 +700,17 @@ export function ChatPage() {
       )}
 
       <section className="flex-1 flex flex-col min-w-0 min-h-0 bg-[var(--glass)] border border-[var(--border)] rounded-3xl shadow-[0_20px_60px_rgba(45,42,35,0.08)] overflow-hidden">
-        <header className="bg-[var(--glass-strong)] backdrop-blur-md border-b border-[var(--border)] px-5 sm:px-6 py-4 flex flex-wrap items-center gap-4 shadow-sm">
+        <header className="bg-[var(--glass-strong)] backdrop-blur-md border-b border-[var(--border)] px-3 sm:px-4 md:px-5 lg:px-6 py-3 sm:py-4 flex flex-wrap items-center gap-4 shadow-sm">
           <div className="flex items-center gap-4 flex-1 min-w-[220px]">
             <button onClick={() => navigate('/')} className="h-11 w-11 inline-flex items-center justify-center rounded-lg hover:text-[#1f6d5a] hover:bg-[var(--paper-2)] transition-colors"><ArrowLeft className="w-5 h-5" /></button>
             <div className="px-4 py-2.5 rounded-lg border bg-[#1f6d5a]/5 border-[#1f6d5a]/20 text-[#1f6d5a] text-sm font-bold uppercase tracking-widest font-mono">
               {selectedCategory === 'auto' ? 'Auto' : categoryLabels[activeCategory]}
+            </div>
+            <div className="hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--paper)]/40">
+              <div className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-[var(--muted)]">Unit</div>
+              <div className="min-w-[120px]">
+                <ModelSelector models={visibleModels} selectedModelId={activeModelId} onSelect={handleModelSelect} ramAvailable={ramAvailable} categoryFilter={activeCategory} showUnavailable={showUnavailable} />
+              </div>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -726,20 +732,13 @@ export function ChatPage() {
               selectedCategory={selectedCategory}
               onCategoryChange={handleCategoryChange}
             />
-            <div className="h-px w-full bg-white/10" />
-            <div className="flex items-center justify-between gap-3 flex-wrap">
-              <div className="text-sm font-mono font-bold uppercase tracking-[0.2em] text-[var(--muted)]">Active Unit</div>
-              <div className="flex-1 min-w-[220px]">
-                <ModelSelector models={visibleModels} selectedModelId={activeModelId} onSelect={handleModelSelect} ramAvailable={ramAvailable} categoryFilter={activeCategory} showUnavailable={showUnavailable} />
-              </div>
-            </div>
           </div>
         )}
 
         <div
           ref={messagesScrollRef}
           onScroll={handleScrollMessages}
-          className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 sm:px-6 py-10 space-y-8 bg-[var(--paper)]"
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 sm:px-4 md:px-5 lg:px-6 py-6 sm:py-8 md:py-10 space-y-4 sm:space-y-6 md:space-y-8 bg-[var(--paper)]"
         >
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-6 opacity-30">
@@ -753,7 +752,7 @@ export function ChatPage() {
           <div ref={messagesEndRef} className="h-4" />
         </div>
 
-        <div className={`p-5 sm:p-6 md:p-8 pt-0 bg-[var(--paper)] border-t border-[var(--border)] shrink-0 ${composerRaised ? 'shadow-[0_-10px_25px_rgba(45,42,35,0.12)]' : ''}`}>
+        <div className={`p-3 sm:p-4 md:p-5 lg:p-6 pt-0 bg-[var(--paper)] border-t border-[var(--border)] shrink-0 ${composerRaised ? 'shadow-[0_-10px_25px_rgba(45,42,35,0.12)]' : ''}`}>
           {errorType === 'llm_not_running' && (
             <div className="mb-4 border border-amber-500/30 bg-amber-500/10 rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
               <div className="text-sm font-mono text-amber-700">
@@ -919,7 +918,7 @@ export function ChatPage() {
             className="absolute inset-0 bg-black/40"
             aria-label="Close conversations panel"
           />
-          <aside className="absolute left-0 top-0 h-full w-[88vw] max-w-sm border border-[var(--border)] bg-[var(--glass)] backdrop-blur-md flex flex-col overflow-hidden shadow-[0_12px_30px_rgba(45,42,35,0.2)]">
+          <aside className="absolute left-0 top-0 h-full w-[88vw] max-w-sm max-h-[calc(100vh-40px)] border border-[var(--border)] bg-[var(--glass)] backdrop-blur-md flex flex-col overflow-y-auto shadow-[0_12px_30px_rgba(45,42,35,0.2)]">
             <div className="p-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--glass-strong)]">
               <h2 className="text-base font-bold text-[var(--ink)] uppercase tracking-[0.2em] font-mono">Conversations</h2>
               <button onClick={() => handleNewChat()} className="p-3 rounded-lg border border-[var(--border)] bg-[var(--glass-strong)] hover:bg-[var(--paper-2)] transition-all">
@@ -940,7 +939,7 @@ export function ChatPage() {
             className="absolute inset-0 bg-black/40"
             aria-label="Close workspace panel"
           />
-          <aside className="absolute right-0 top-0 h-full w-[90vw] max-w-sm border border-[var(--border)] bg-[var(--glass)] backdrop-blur-md flex flex-col p-6 space-y-8 overflow-y-auto shadow-[0_12px_30px_rgba(45,42,35,0.2)]">
+          <aside className="absolute right-0 top-0 h-full w-[85vw] max-w-[360px] max-h-[calc(100vh-40px)] border border-[var(--border)] bg-[var(--glass)] backdrop-blur-md flex flex-col p-6 space-y-8 overflow-y-auto shadow-[0_12px_30px_rgba(45,42,35,0.2)]">
             <div>
               <div className="text-sm font-mono font-bold uppercase opacity-50 mb-3 tracking-widest">Operator Settings</div>
               <div className="text-xl font-serif font-bold italic">{profile?.name || 'IRIS_USER'}</div>

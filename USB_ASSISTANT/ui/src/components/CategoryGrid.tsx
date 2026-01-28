@@ -23,8 +23,8 @@ export function CategoryGrid({ categories, selectedCategory, onCategoryChange }:
   const renderItem = (category: CategoryItem, layout: 'grid' | 'scroll') => {
     const isActive = selectedCategory === category.id;
     const showTooltip = isActive && hovered === category.id;
-    const baseSize = layout === 'grid' ? 'min-h-[82px] p-4' : 'min-h-[78px] px-4 py-3 min-w-[132px]';
-    const labelSize = layout === 'grid' ? 'text-[12px]' : 'text-[11px]';
+    const baseSize = layout === 'grid' ? 'min-h-[40px] p-1.5' : 'min-h-[36px] px-2 py-1 min-w-[72px]';
+    const labelSize = layout === 'grid' ? 'text-[9px]' : 'text-[8px]';
 
     return (
       <button
@@ -35,16 +35,16 @@ export function CategoryGrid({ categories, selectedCategory, onCategoryChange }:
         onMouseLeave={() => setHovered((current) => (current === category.id ? null : current))}
         onFocus={() => setHovered(category.id)}
         onBlur={() => setHovered((current) => (current === category.id ? null : current))}
-        className={`group relative overflow-visible rounded-xl border transition-all duration-200 flex flex-col items-center justify-center gap-2 text-center ${baseSize} ${isActive ? 'border-transparent bg-[#0f3f2c] text-white shadow-[0_14px_35px_rgba(15,63,44,0.55)]' : 'border-[var(--border)] bg-white/90 text-[var(--ink)] hover:border-[#1f6d5a]/65 hover:bg-white/95'}`}
+        className={`group relative overflow-visible rounded-xl border transition-all duration-200 flex flex-col items-center justify-center gap-1.5 text-center ${baseSize} ${isActive ? 'border-[#1f6d5a] bg-[#1f6d5a]/15 text-[#1f6d5a] shadow-[0_8px_20px_rgba(31,109,90,0.25)]' : 'border-[var(--border)] bg-white/90 text-[var(--ink)] hover:border-[#1f6d5a]/65 hover:bg-white/95'}`}
         aria-label={`Select ${category.label} category`}
         aria-pressed={isActive}
       >
-        <span className={`absolute left-1 top-1/2 h-11 w-1 -translate-y-1/2 rounded-full transition-opacity ${isActive ? 'bg-[#1f6d5a] opacity-100' : 'opacity-0'}`} />
+        <span className={`absolute left-0.5 top-1/2 h-7 w-0.5 -translate-y-1/2 rounded-full transition-opacity ${isActive ? 'bg-[#1f6d5a] opacity-100' : 'opacity-0'}`} />
         <category.icon
-          size={18}
-          className={`transition-colors ${isActive ? 'text-white' : 'text-[#1f6d5a]'}`}
+          size={12}
+          className={`transition-colors ${isActive ? 'text-[#1f6d5a]' : 'text-[#1f6d5a]'}`}
         />
-        <span className={`font-bold uppercase tracking-[0.28em] ${labelSize} ${isActive ? 'text-white/90' : 'text-[var(--ink)]/80'}`}>{category.label}</span>
+        <span className={`font-bold uppercase tracking-[0.25em] ${labelSize} ${isActive ? 'text-[#1f6d5a]' : 'text-[var(--ink)]/70'}`}>{category.label}</span>
 
         {showTooltip && layout === 'grid' && (
           <div className="pointer-events-none absolute left-1/2 top-[-2.6rem] w-64 -translate-x-1/2 rounded-xl border border-[#1f6d5a] bg-[#04180f] px-3 py-2 shadow-[0_16px_45px_rgba(0,0,0,0.55)]">
