@@ -47,14 +47,15 @@ jobs:
           deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-backports main universe multiverse
           EOF
           sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu pkg-config libssl-dev:arm64
+          sudo apt-get install -y gcc-aarch64-linux-gnu pkg-config libssl-dev:arm64 libwayland-dev:arm64
       - name: Build
         working-directory: USB_ASSISTANT/server
         env:
           CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
           PKG_CONFIG_ALLOW_CROSS: "1"
-          PKG_CONFIG_PATH: /usr/lib/aarch64-linux-gnu/pkgconfig
+          PKG_CONFIG_PATH: /usr/lib/aarch64-linux-gnu/pkgconfig:/usr/share/pkgconfig
           PKG_CONFIG_LIBDIR: /usr/lib/aarch64-linux-gnu/pkgconfig
+          PKG_CONFIG_SYSROOT_DIR: /
         run: cargo build --release --target aarch64-unknown-linux-gnu
       - name: Upload
         uses: actions/upload-artifact@v4
