@@ -22,16 +22,16 @@ const STORAGE_KEYS = {
 };
 
 const categoryCards: { id: ChatCategory; label: string; icon: LucideIcon; description: string }[] = [
-  { id: 'auto', label: 'Auto', icon: Sparkles, description: 'Let IRIS route your prompt to the best unit.' },
-  { id: 'general', label: 'General', icon: Lightbulb, description: 'Everyday help, writing, and broad knowledge.' },
-  { id: 'coding', label: 'Code', icon: Code2, description: 'Debugging, architecture, and software help.' },
-  { id: 'medical', label: 'Medical', icon: Heart, description: 'First aid, symptoms, and medical guidance.' },
-  { id: 'mathematics', label: 'Math', icon: Calculator, description: 'Equations, proofs, and quantitative work.' },
-  { id: 'chemistry', label: 'Chemistry', icon: Beaker, description: 'Reactions, formulas, and lab fundamentals.' },
-  { id: 'survival', label: 'Survival', icon: Tent, description: 'Wilderness skills, shelter, and rescue.' },
-  { id: 'planting', label: 'Planting', icon: Sprout, description: 'Gardening, crops, and food production.' },
-  { id: 'building', label: 'Building', icon: Hammer, description: 'Construction, repairs, and DIY work.' },
-  { id: 'uncensored', label: 'Uncensored', icon: ShieldAlert, description: 'Unfiltered knowledge and open exploration.' },
+  { id: 'auto', label: 'Auto', icon: Sparkles, description: 'IRIS chooses the clearest path for you.' },
+  { id: 'general', label: 'General', icon: Lightbulb, description: 'Everyday questions, brainstorming, and planning.' },
+  { id: 'coding', label: 'Code', icon: Code2, description: 'Software insight, debugging, and architecture.' },
+  { id: 'medical', label: 'Medical', icon: Heart, description: 'First-aid, symptoms, and care guidance.' },
+  { id: 'mathematics', label: 'Math', icon: Calculator, description: 'Equations, analysis, and quantitative help.' },
+  { id: 'chemistry', label: 'Chemistry', icon: Beaker, description: 'Formulas, lab sense, and reactions.' },
+  { id: 'survival', label: 'Survival', icon: Tent, description: 'Wilderness skills, shelter, and rescue tips.' },
+  { id: 'planting', label: 'Planting', icon: Sprout, description: 'Gardening, crops, and food-production ideas.' },
+  { id: 'building', label: 'Building', icon: Hammer, description: 'Construction, repairs, and DIY know-how.' },
+  { id: 'uncensored', label: 'Uncensored', icon: ShieldAlert, description: 'Open, unfiltered exploration when needed.' },
 ];
 
 const categoryLabels: Record<LLMCategory, string> = {
@@ -726,6 +726,7 @@ export function ChatPage() {
               selectedCategory={selectedCategory}
               onCategoryChange={handleCategoryChange}
             />
+            <div className="h-px w-full bg-white/10" />
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div className="text-sm font-mono font-bold uppercase tracking-[0.2em] text-[var(--muted)]">Active Unit</div>
               <div className="flex-1 min-w-[220px]">
