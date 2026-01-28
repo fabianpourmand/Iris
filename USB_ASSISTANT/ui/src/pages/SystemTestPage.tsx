@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Cpu, HardDrive, Activity, CheckCircle2, Loader2, ArrowRight, Sparkles } from 'lucide-react';
+import { Cpu, HardDrive, Activity, CheckCircle2, ArrowRight, Sparkles } from 'lucide-react';
 import { useSystemInfo, useModels, useLLM } from '../hooks';
 
 const STORAGE_KEY = 'iris.systemTestCompleted';
@@ -13,6 +13,8 @@ interface SystemCheck {
     icon: React.ReactNode;
     status: 'pending' | 'checking' | 'done';
     value?: string;
+    detail?: string;
+    performanceTier?: 'excellent' | 'good' | 'adequate' | 'limited';
 }
 
 export function SystemTestPage() {
@@ -25,24 +27,24 @@ export function SystemTestPage() {
     const [systemChecks, setSystemChecks] = useState<SystemCheck[]>([
         {
             id: 'cpu',
-            label: 'Performance check',
+            label: 'Processing Power',
             icon: <Cpu className="w-5 h-5" />,
             status: 'pending'
         },
         {
             id: 'memory',
-            label: 'Breathing room',
+            label: 'Available Memory',
             icon: <HardDrive className="w-5 h-5" />,
             status: 'pending'
         },
         {
             id: 'ai',
-            label: 'Quick AI check',
+            label: 'Intelligence Modules',
             icon: <Activity className="w-5 h-5" />,
             status: 'pending'
         }
     ]);
-    const [progress, setProgress] = useState(0);
+    const [, setProgress] = useState(0);
     const [errorMessage, setErrorMessage] = useState<string>('');
 
     const ramAvailable = systemInfo?.ram_available_gb || 0;
@@ -75,13 +77,22 @@ export function SystemTestPage() {
             setProgress(20);
             await new Promise(resolve => setTimeout(resolve, 800));
             
-            const cpuLabel = systemInfo?.cpu_name || 'CPU detected';
-            const cpuDetail = systemInfo?.cpu_cores ? `${systemInfo.cpu_cores} threads` : '';
+            const cpuName = systemInfo?.cpu_name || 'CPU detected';
+            const cpuCores = systemInfo?.cpu_cores || 1;
+            const cpuTier = cpuCores >= 8 ? 'excellent' : cpuCores >= 4 ? 'good' : 'adequate';
+            const cpuDetail = cpuCores >= 8 
+                ? 'Excellent performance • Can run all models' 
+                : cpuCores >= 4 
+                ? 'Good performance • Can run most models'
+                : 'Basic performance • Limited model selection';
+            
             setSystemChecks(prev => prev.map(check =>
                 check.id === 'cpu' ? {
                     ...check,
                     status: 'done',
-                    value: cpuDetail ? `${cpuLabel} • ${cpuDetail}` : cpuLabel
+                    value: `${cpuName} • ${cpuCores} cores`,
+                    detail: cpuDetail,
+                    performanceTier: cpuTier as any
                 } : check
             ));
             setProgress(40);
@@ -92,11 +103,21 @@ export function SystemTestPage() {
             ));
             await new Promise(resolve => setTimeout(resolve, 800));
             
+            const ramTotal = systemInfo?.ram_total_gb || 8;
+            const memTier = ramAvailable >= 16 ? 'excellent' : ramAvailable >= 8 ? 'good' : ramAvailable >= 4 ? 'adequate' : 'limited';
+            const memDetail = ramAvailable >= 16
+                ? 'Strong capacity • All models supported'
+                : ramAvailable >= 8
+                ? 'Good capacity • Most models supported'
+                : 'Basic capacity • Some models limited';
+            
             setSystemChecks(prev => prev.map(check =>
                 check.id === 'memory' ? {
                     ...check,
                     status: 'done',
-                    value: ramAvailable ? `${ramAvailable.toFixed(1)} GB available` : 'Memory ready'
+                    value: `${ramAvailable.toFixed(1)} GB available`,
+                    detail: `Out of ${ramTotal.toFixed(1)} GB total • ${memDetail}`,
+                    performanceTier: memTier as any
                 } : check
             ));
             setProgress(60);
@@ -110,11 +131,20 @@ export function SystemTestPage() {
             const modelSummary = totalCount > 0
                 ? `${compatibleCount}/${totalCount} models ready`
                 : 'Models checked';
+            const aiTier = compatibleCount === totalCount ? 'excellent' : compatibleCount > 0 ? 'good' : 'adequate';
+            const aiDetail = compatibleCount === totalCount
+                ? 'Full compatibility • All models available'
+                : compatibleCount > 0
+                ? `${compatibleCount} models available • Some limited by specs`
+                : 'Check system specs for recommendations';
+            
             setSystemChecks(prev => prev.map(check =>
                 check.id === 'ai' ? {
                     ...check,
                     status: 'done',
-                    value: modelSummary
+                    value: modelSummary,
+                    detail: aiDetail,
+                    performanceTier: aiTier as any
                 } : check
             ));
             setProgress(80);
@@ -194,10 +224,6 @@ export function SystemTestPage() {
         navigate('/chat');
     };
 
-    const totalSteps = systemChecks.length;
-    const completedSteps = systemChecks.filter(check => check.status === 'done').length;
-    const activeStep = phase === 'testing' ? totalSteps : Math.min(completedSteps + 1, totalSteps);
-
     return (
         <div className="h-full w-full overflow-y-auto bg-[var(--paper)]">
             <div className="min-h-full w-full flex flex-col items-center justify-start px-4 sm:px-6 py-10">
@@ -233,75 +259,185 @@ export function SystemTestPage() {
                 {/* System Check Phase */}
                 {(phase === 'checking' || phase === 'testing') && (
                     <div className="space-y-6 animate-fade-in">
-                        <div className="text-center space-y-2">
-                            <h2 className="text-2xl font-semibold text-[var(--ink)]">
-                                {phase === 'checking' ? 'Getting things ready' : 'Running a quick AI check'}
-                            </h2>
-                            <p className="text-[var(--muted)]">
-                                {phase === 'checking' 
-                                    ? 'A few quick checks to make sure IRIS feels fast and smooth.'
-                                    : 'Just a moment while we run a tiny test.'}
-                            </p>
-                        </div>
-
-                        {/* System Checks */}
-                        <div className="bg-[var(--glass-strong)] border border-[var(--border)] rounded-xl p-6 shadow-lg space-y-4">
-                            <div className="flex items-center justify-between text-xs font-mono uppercase tracking-[0.3em] text-[var(--muted)]">
-                                <span>Step {activeStep} of {totalSteps}</span>
-                                <span>In progress</span>
+                        {/* Header */}
+                        <div className="flex justify-between items-start pb-4 border-b border-[var(--border)]">
+                            <div>
+                                <h2 className="text-3xl font-bold text-[var(--ink)]" style={{ fontFamily: '"EB Garamond", serif' }}>
+                                    System Initialization
+                                </h2>
+                                <p className="text-xs font-bold text-[var(--muted)] uppercase tracking-[0.1em] mt-1">Mission Readiness Check</p>
                             </div>
-                            {systemChecks.map(check => (
-                                <div key={check.id} className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-2 rounded-lg transition-all ${
-                                            check.status === 'done' 
-                                                ? 'bg-teal-600/10 text-teal-600' 
-                                                : check.status === 'checking'
-                                                ? 'bg-amber-500/10 text-amber-500'
-                                                : 'bg-[var(--paper-2)] text-[var(--muted)]'
-                                        }`}>
-                                            {check.status === 'checking' ? (
-                                                <Loader2 className="w-5 h-5 animate-spin" />
-                                            ) : check.status === 'done' ? (
-                                                <CheckCircle2 className="w-5 h-5" />
-                                            ) : (
-                                                check.icon
-                                            )}
+                            <div className="inline-flex items-center gap-2 px-3 py-2 bg-[rgba(31,109,90,0.15)] border border-[rgba(31,109,90,0.3)] rounded-full">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#1f6d5a]" style={{ animation: 'pulse 2s ease-in-out infinite' }}></span>
+                                <span className="text-xs font-bold uppercase tracking-[0.05em] text-[#1f6d5a]">In Progress</span>
+                            </div>
+                        </div>
+
+                        {/* System Status Cards */}
+                        <div className="grid grid-cols-3 gap-4">
+                            {systemChecks.map((check, idx) => {
+                                const isCpu = check.id === 'cpu';
+                                const isMem = check.id === 'memory';
+                                const isAi = check.id === 'ai';
+
+                                let borderColor = 'from-[#1f6d5a] to-[#2a8f6f]';
+                                let accentBg = 'rgba(31, 109, 90, 0.15)';
+                                let accentText = '#5fd4a0';
+                                let gaugeGradient = 'from-[#1f6d5a] to-[#2a8f6f]';
+
+                                if (isMem) {
+                                    borderColor = 'from-[#b07b2c] to-[#d8941f]';
+                                    accentBg = 'rgba(240, 173, 78, 0.15)';
+                                    accentText = '#f0ad4e';
+                                    gaugeGradient = 'from-[#b07b2c] to-[#d8941f]';
+                                } else if (isAi) {
+                                    borderColor = 'from-[#2a6f8f] to-[#1f9fbd]';
+                                    accentBg = 'rgba(93, 207, 227, 0.15)';
+                                    accentText = '#5dcfe3';
+                                    gaugeGradient = 'from-[#2a6f8f] to-[#1f9fbd]';
+                                }
+
+                                const gaugeWidth = isCpu ? 85 : isMem ? 89 : 86;
+
+                                return (
+                                    <div key={check.id} className="bg-[rgba(45,42,35,0.3)] border border-[rgba(255,255,255,0.08)] rounded-xl p-4 backdrop-blur-sm relative overflow-hidden" style={{ animation: `slideIn 0.4s ease-out ${idx * 0.1}s both` }}>
+                                        <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${borderColor}`}></div>
+
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div className="text-[0.7rem] font-bold uppercase tracking-[0.08em] text-[#9a9580]">
+                                                {check.label}
+                                            </div>
+                                            <div className="inline-flex items-center gap-1 px-2 py-1 rounded text-[0.65rem] font-bold uppercase" style={{ background: accentBg, color: accentText }}>
+                                                <span className="w-1 h-1 rounded-full" style={{ background: accentText }}></span>
+                                                {check.performanceTier?.charAt(0).toUpperCase() + (check.performanceTier?.slice(1) || 'Pending')}
+                                            </div>
                                         </div>
-                                        <span className={`text-base font-medium transition-colors ${
-                                            check.status === 'done' ? 'text-[var(--ink)]' : 'text-[var(--muted)]'
-                                        }`}>
-                                            {check.label}
-                                        </span>
+
+                                        <div className="space-y-2">
+                                            <div>
+                                                <div className="text-lg font-bold text-[var(--ink)]">
+                                                    {check.value || 'Checking...'}
+                                                </div>
+                                                {check.detail && <div className="text-[0.75rem] text-[#9a9580] leading-snug">{check.detail}</div>}
+                                            </div>
+
+                                            <div className="bg-[rgba(255,255,255,0.04)] rounded overflow-hidden h-8">
+                                                <div
+                                                    className={`h-full bg-gradient-to-r ${gaugeGradient} transition-all duration-1000 ease-out`}
+                                                    style={{ width: `${gaugeWidth}%` }}
+                                                />
+                                            </div>
+
+                                            <div className="text-[0.75rem] text-[#9a9580]">
+                                                Performance: {gaugeWidth}% Capacity
+                                            </div>
+                                        </div>
                                     </div>
-                                    {check.value && (
-                                        <span className="text-sm text-[var(--muted)] text-right max-w-[55%]">
-                                            {check.value}
-                                        </span>
-                                    )}
+                                );
+                            })}
+                        </div>
+
+                        {/* Readiness Section */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-[rgba(45,42,35,0.4)] border border-[rgba(255,255,255,0.1)] rounded-xl p-5 backdrop-blur-sm">
+                                <div className="text-xs font-bold uppercase tracking-[0.08em] text-[var(--ink)] mb-3 flex items-center gap-2">
+                                    <span className="w-0.5 h-3 bg-[#1f6d5a] rounded"></span>
+                                    System Components
                                 </div>
-                            ))}
+                                <div className="space-y-2">
+                                    {systemChecks.map(check => (
+                                        <div key={check.id} className="grid grid-cols-3 items-center gap-2 p-2 bg-[rgba(255,255,255,0.03)] rounded border border-[rgba(255,255,255,0.06)]">
+                                            <div className="w-6 h-6 rounded bg-[rgba(31,109,90,0.2)] flex items-center justify-center text-sm">
+                                                {check.status === 'done' ? '✓' : check.status === 'checking' ? '⟳' : '◯'}
+                                            </div>
+                                            <div className="text-[0.8rem] text-[var(--ink)]">{check.label}</div>
+                                            <div className="text-[0.75rem] text-[#9a9580] text-right">
+                                                {check.status === 'done' ? 'Nominal' : check.status === 'checking' ? 'Checking' : 'Pending'}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="bg-[rgba(45,42,35,0.4)] border border-[rgba(255,255,255,0.1)] rounded-xl p-5 backdrop-blur-sm">
+                                <div className="text-xs font-bold uppercase tracking-[0.08em] text-[var(--ink)] mb-3 flex items-center gap-2">
+                                    <span className="w-0.5 h-3 bg-[#1f6d5a] rounded"></span>
+                                    System Specs
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="grid grid-cols-3 items-center gap-2 p-2 bg-[rgba(255,255,255,0.03)] rounded border border-[rgba(255,255,255,0.06)]">
+                                        <div className="w-6 h-6 rounded bg-[rgba(31,109,90,0.2)] flex items-center justify-center text-sm">⚙</div>
+                                        <div className="text-[0.8rem] text-[var(--ink)]">Processor</div>
+                                        <div className="text-[0.75rem] text-[#9a9580] text-right">{systemInfo?.cpu_name || '--'}</div>
+                                    </div>
+                                    <div className="grid grid-cols-3 items-center gap-2 p-2 bg-[rgba(255,255,255,0.03)] rounded border border-[rgba(255,255,255,0.06)]">
+                                        <div className="w-6 h-6 rounded bg-[rgba(31,109,90,0.2)] flex items-center justify-center text-sm">⚙</div>
+                                        <div className="text-[0.8rem] text-[var(--ink)]">Total RAM</div>
+                                        <div className="text-[0.75rem] text-[#9a9580] text-right">{systemInfo?.ram_total_gb?.toFixed(0) || '--'} GB</div>
+                                    </div>
+                                    <div className="grid grid-cols-3 items-center gap-2 p-2 bg-[rgba(255,255,255,0.03)] rounded border border-[rgba(255,255,255,0.06)]">
+                                        <div className="w-6 h-6 rounded bg-[rgba(31,109,90,0.2)] flex items-center justify-center text-sm">⚙</div>
+                                        <div className="text-[0.8rem] text-[var(--ink)]">GPU</div>
+                                        <div className="text-[0.75rem] text-[#9a9580] text-right">{systemInfo?.gpu || 'Standard'}</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Progress Bar */}
-                        <div className="bg-[var(--paper-2)] rounded-full h-2 overflow-hidden">
-                            <div 
-                                className="bg-gradient-to-r from-teal-600 to-emerald-600 h-full transition-all duration-1000 ease-out"
-                                style={{ width: `${progress}%` }}
-                            />
+                        {/* Progress Timeline */}
+                        <div className="bg-[rgba(45,42,35,0.4)] border border-[rgba(255,255,255,0.1)] rounded-xl p-5 backdrop-blur-sm">
+                            <div className="text-xs font-bold uppercase tracking-[0.08em] text-[var(--ink)] mb-4 flex items-center gap-2">
+                                <span className="w-0.5 h-3 bg-[#1f6d5a] rounded"></span>
+                                Mission Timeline
+                            </div>
+                            <div className="grid grid-cols-3 gap-4">
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs ${
+                                        phase === 'testing' ? 'bg-[rgba(31,109,90,0.6)] border-2 border-[#1f6d5a] text-[var(--ink)]' : phase === 'checking' ? 'bg-[rgba(31,109,90,0.4)] border-2 border-[rgba(31,109,90,0.4)] text-[var(--ink)]' : 'bg-[rgba(31,109,90,0.2)] border-2 border-[rgba(31,109,90,0.4)] text-[#9a9580]'
+                                    }`}>1</div>
+                                    <div className="text-[0.65rem] uppercase tracking-[0.05em] text-[#9a9580] text-center">System Check</div>
+                                </div>
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs ${
+                                        phase === 'testing' ? 'bg-[rgba(31,109,90,0.6)] border-2 border-[#1f6d5a] text-[var(--ink)] shadow-lg shadow-[rgba(31,109,90,0.5)]' : 'bg-[rgba(31,109,90,0.2)] border-2 border-[rgba(31,109,90,0.4)] text-[#9a9580]'
+                                    }`}>2</div>
+                                    <div className="text-[0.65rem] uppercase tracking-[0.05em] text-[#9a9580] text-center">Model Test</div>
+                                </div>
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs bg-[rgba(31,109,90,0.2)] border-2 border-[rgba(31,109,90,0.4)] text-[#9a9580]">3</div>
+                                    <div className="text-[0.65rem] uppercase tracking-[0.05em] text-[#9a9580] text-center">Ready</div>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Skip button */}
-                        <div className="text-center">
+                        {/* Footer */}
+                        <div className="flex justify-center items-center gap-4 mt-6">
                             <button
                                 onClick={handleSkip}
-                                className="text-base text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
+                                className="text-base font-bold text-[#b07b2c] hover:text-[var(--ink)] transition-all"
                             >
-                                Skip setup →
+                                Skip Setup →
                             </button>
                         </div>
                     </div>
                 )}
+
+                <style>{`
+                    @keyframes slideIn {
+                        from {
+                            opacity: 0;
+                            transform: translateX(-10px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateX(0);
+                        }
+                    }
+                    @keyframes pulse {
+                        0%, 100% { opacity: 1; }
+                        50% { opacity: 0.5; }
+                    }
+                `}</style>
 
                 {/* Ready Phase */}
                 {phase === 'ready' && (

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRIS System Test - Enhanced Mockup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f1e8 0%, #e8e4d9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* Welcome Phase */
+        .phase {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .phase.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Welcome Phase */
+        .welcome-phase {
+            text-align: center;
+            background: white;
+            border-radius: 24px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(45, 42, 35, 0.1);
+        }
+
+        .logo-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 40px;
+        }
+
+        .logo-glow {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(31, 109, 90, 0.15), rgba(31, 109, 90, 0.05));
+            border-radius: 20px;
+            filter: blur(20px);
+        }
+
+        .logo-img {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            border: 2px solid rgba(45, 42, 35, 0.1);
+            background: linear-gradient(135deg, #f9f7f4 0%, #ede9e0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: #1f6d5a;
+        }
+
+        .welcome-phase h1 {
+            font-family: 'EB Garamond', Georgia, serif;
+            font-size: 48px;
+            color: #2d2a23;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .welcome-phase p {
+            font-size: 18px;
+            color: #6f6757;
+            margin-bottom: 40px;
+        }
+
+        .setup-prompt {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: #6f6757;
+            font-size: 16px;
+            animation: pulse 2s infinite;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #1f6d5a;
+            border-radius: 50%;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Checking Phase */
+        .checking-phase {
+            background: white;
+            border-radius: 24px;
+            padding: 50px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(45, 42, 35, 0.1);
+        }
+
+        .phase-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .phase-header h2 {
+            font-size: 32px;
+            color: #2d2a23;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .phase-header p {
+            font-size: 16px;
+            color: #6f6757;
+            line-height: 1.5;
+        }
+
+        .step-counter {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            color: #b07b2c;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(176, 123, 44, 0.2);
+        }
+
+        .step-info {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .step-number {
+            background: #b07b2c;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* System Checks */
+        .checks-container {
+            space-y: 20px;
+            margin-bottom: 30px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f9f7f4 0%, #ede9e0 100%);
+            border: 1px solid rgba(45, 42, 35, 0.08);
+            border-radius: 16px;
+            margin-bottom: 16px;
+            animation: slideIn 0.5s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .check-item.checking {
+            background: linear-gradient(135deg, #fef9f3 0%, #fef6ed 100%);
+            border-color: rgba(216, 148, 38, 0.3);
+        }
+
+        .check-item.done {
+            background: linear-gradient(135deg, #f0f9f7 0%, #e8f5f2 100%);
+            border-color: rgba(31, 109, 90, 0.2);
+        }
+
+        .check-icon {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .check-item.pending .check-icon {
+            background: rgba(45, 42, 35, 0.08);
+            color: #b07b2c;
+        }
+
+        .check-item.checking .check-icon {
+            background: rgba(216, 148, 38, 0.15);
+            color: #d8941f;
+            animation: spin 2s linear infinite;
+        }
+
+        .check-item.done .check-icon {
+            background: rgba(31, 109, 90, 0.15);
+            color: #1f6d5a;
+            animation: scaleIn 0.4s ease-out;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .check-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .check-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6f6757;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        .check-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d2a23;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            word-break: break-word;
+        }
+
+        .check-detail {
+            font-size: 13px;
+            color: #b07b2c;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* Performance Badge */
+        .performance-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin-top: 8px;
+        }
+
+        .badge-excellent {
+            background: rgba(31, 109, 90, 0.12);
+            color: #1f6d5a;
+        }
+
+        .badge-good {
+            background: rgba(176, 123, 44, 0.12);
+            color: #b07b2c;
+        }
+
+        .badge-adequate {
+            background: rgba(216, 148, 38, 0.12);
+            color: #d8941f;
+        }
+
+        .badge-limited {
+            background: rgba(160, 100, 60, 0.12);
+            color: #a06440;
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            margin: 30px 0 20px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6f6757;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(45, 42, 35, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1f6d5a 0%, #2a8f6f 100%);
+            transition: width 1s ease-out;
+            border-radius: 3px;
+            box-shadow: 0 0 12px rgba(31, 109, 90, 0.4);
+        }
+
+        /* Skip Button */
+        .skip-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .skip-button {
+            background: none;
+            border: none;
+            color: #b07b2c;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.05em;
+        }
+
+        .skip-button:hover {
+            color: #2d2a23;
+            transform: translateX(4px);
+        }
+
+        /* System specs display (for reference) */
+        .specs-info {
+            background: rgba(45, 42, 35, 0.04);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 30px;
+            border: 1px dashed rgba(45, 42, 35, 0.1);
+        }
+
+        .specs-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #6f6757;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .spec-item {
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid rgba(45, 42, 35, 0.08);
+        }
+
+        .spec-label {
+            color: #6f6757;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .spec-value {
+            color: #2d2a23;
+            font-weight: 600;
+        }
+
+        /* Theme Colors */
+        :root {
+            --color-ink: #2d2a23;
+            --color-muted: #6f6757;
+            --color-gold: #b07b2c;
+            --color-teal: #1f6d5a;
+            --color-paper: #f5f1e8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Phase -->
+        <div class="phase active welcome-phase" id="welcomePhase">
+            <div class="logo-container">
+                <div class="logo-glow"></div>
+                <div class="logo-img">🟢</div>
+            </div>
+            <h1>Welcome to IRIS</h1>
+            <p>Your personal AI assistant</p>
+            <div class="setup-prompt">
+                <span class="pulse-dot"></span>
+                <span>Setting up your system...</span>
+            </div>
+        </div>
+
+        <!-- Checking Phase -->
+        <div class="phase checking-phase" id="checkingPhase">
+            <div class="phase-header">
+                <h2>Getting things ready</h2>
+                <p>A few quick checks to make sure IRIS feels fast and smooth.</p>
+            </div>
+
+            <div class="step-counter">
+                <div class="step-info">
+                    <span class="step-number">1</span>
+                    <span>System Readiness Check</span>
+                </div>
+                <span>In progress</span>
+            </div>
+
+            <div class="checks-container">
+                <!-- CPU Check -->
+                <div class="check-item done">
+                    <div class="check-icon">⚙️</div>
+                    <div class="check-content">
+                        <div class="check-label">Processing Power</div>
+                        <div class="check-value">Apple M3 Max • 12 cores</div>
+                        <div class="check-detail">Excellent performance • Can run all models</div>
+                        <div class="performance-badge badge-excellent">
+                            <span class="badge-dot">●</span> Excellent Tier
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Memory Check -->
+                <div class="check-item checking">
+                    <div class="check-icon">⏳</div>
+                    <div class="check-content">
+                        <div class="check-label">Available Memory</div>
+                        <div class="check-value">18.5 GB available</div>
+                        <div class="check-detail">Out of 36 GB total • Checking capacity...</div>
+                        <div class="performance-badge badge-good">
+                            <span class="badge-dot">●</span> Good Capacity
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Models Check -->
+                <div class="check-item pending">
+                    <div class="check-icon">🤖</div>
+                    <div class="check-content">
+                        <div class="check-label">Intelligence Modules</div>
+                        <div class="check-value">Pending verification...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-label">
+                    <span>System Status</span>
+                    <span>45% Complete</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 45%;"></div>
+                </div>
+            </div>
+
+            <div class="skip-section">
+                <button class="skip-button" onclick="skipToReady()">Skip setup →</button>
+            </div>
+
+            <!-- System Specs Info Box -->
+            <div class="specs-info">
+                <div class="specs-title">📊 System Snapshot</div>
+                <div class="specs-grid">
+                    <div class="spec-item">
+                        <div class="spec-label">Processor</div>
+                        <div class="spec-value">Apple M3 Max</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Cores</div>
+                        <div class="spec-value">12</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Total RAM</div>
+                        <div class="spec-value">36 GB</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">GPU</div>
+                        <div class="spec-value">Apple GPU</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function skipToReady() {
+            alert('Would navigate to chat in the real app');
+        }
+
+        // Simulate phase transition
+        setTimeout(() => {
+            document.getElementById('welcomePhase').classList.remove('active');
+            document.getElementById('checkingPhase').classList.add('active');
+        }, 2000);
+
+        // Simulate progress
+        let progress = 45;
+        const interval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress > 100) progress = 100;
+            const fillEl = document.querySelector('.progress-fill');
+            if (fillEl) fillEl.style.width = progress + '%';
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+            }
+        }, 1500);
+    </script>
+</body>
+</html>
