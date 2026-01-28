@@ -1,0 +1,103 @@
+[
+  {
+    "id": "qwen2.5-0.5b-q4",
+    "display_name": "Qwen 2.5 Tiny (0.5B)",
+    "filename": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+    "min_ram_gb": 4,
+    "recommended_ctx": 2048,
+    "category": "general",
+    "uncensored": false,
+    "license": "Apache-2.0",
+    "notes": "Ultra-fast, basic tasks. Perfect for Raspberry Pi."
+  },
+  {
+    "id": "qwen2.5-1.5b-q4",
+    "display_name": "Qwen 2.5 Small (1.5B)",
+    "filename": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    "min_ram_gb": 8,
+    "recommended_ctx": 4096,
+    "category": "general",
+    "uncensored": false,
+    "license": "Apache-2.0",
+    "notes": "Good balance of speed and quality for 8GB laptops."
+  },
+  {
+    "id": "qwen2.5-7b-q4",
+    "display_name": "Qwen 2.5 Medium (7B)",
+    "filename": "qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf",
+    "split_files": ["qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf", "qwen2.5-7b-instruct-q4_k_m-00002-of-00002.gguf"],
+    "min_ram_gb": 16,
+    "recommended_ctx": 8192,
+    "category": "general",
+    "uncensored": false,
+    "license": "Apache-2.0",
+    "notes": "Excellent general-purpose model. Great reasoning and writing."
+  },
+  {
+    "id": "qwen2.5-14b-q4",
+    "display_name": "Qwen 2.5 Large (14B)",
+    "filename": "qwen2.5-14b-instruct-q4_k_m-00001-of-00003.gguf",
+    "split_files": ["qwen2.5-14b-instruct-q4_k_m-00001-of-00003.gguf", "qwen2.5-14b-instruct-q4_k_m-00002-of-00003.gguf", "qwen2.5-14b-instruct-q4_k_m-00003-of-00003.gguf"],
+    "min_ram_gb": 24,
+    "recommended_ctx": 16384,
+    "category": "general",
+    "uncensored": false,
+    "license": "Apache-2.0",
+    "notes": "High-quality model for RTX 3090/4090 or 32GB+ RAM systems."
+  },
+  {
+    "id": "dolphin-0.5b-q4",
+    "display_name": "Dolphin 3.0 Tiny (0.5B) - Uncensored",
+    "filename": "dolphin3.0-qwen2.5-0.5b-q4_k_m.gguf",
+    "min_ram_gb": 4,
+    "recommended_ctx": 2048,
+    "category": "uncensored",
+    "uncensored": true,
+    "license": "Apache-2.0",
+    "notes": "Uncensored tiny model for Raspberry Pi. No content filters."
+  },
+  {
+    "id": "dolphin-1.5b-q4",
+    "display_name": "Dolphin 3.0 Small (1.5B) - Uncensored",
+    "filename": "dolphin3.0-qwen2.5-1.5b-q4_k_m.gguf",
+    "min_ram_gb": 8,
+    "recommended_ctx": 4096,
+    "category": "uncensored",
+    "uncensored": true,
+    "license": "Apache-2.0",
+    "notes": "Uncensored small model. Good for creative writing without filters."
+  },
+  {
+    "id": "qwen2.5-7b-abliterated-q4",
+    "display_name": "Qwen 2.5 Medium (7B) - Abliterated",
+    "filename": "Qwen2.5-7B-Instruct-abliterated-v2.Q4_K_M.gguf",
+    "min_ram_gb": 16,
+    "recommended_ctx": 8192,
+    "category": "uncensored",
+    "uncensored": true,
+    "license": "Apache-2.0",
+    "notes": "Abliterated 7B model. Removed refusals while maintaining quality."
+  },
+  {
+    "id": "qwen2.5-14b-abliterated-q4",
+    "display_name": "Qwen 2.5 Large (14B) - Abliterated",
+    "filename": "Qwen2.5-14B-Instruct-abliterated.Q4_K_M.gguf",
+    "min_ram_gb": 24,
+    "recommended_ctx": 16384,
+    "category": "uncensored",
+    "uncensored": true,
+    "license": "Apache-2.0",
+    "notes": "Abliterated 14B model for high-end systems. Best uncensored quality."
+  },
+  {
+    "id": "qwen2.5-coder-7b-q4",
+    "display_name": "Qwen 2.5 Coder (7B)",
+    "filename": "qwen2.5-coder-7b-instruct-q4_k_m.gguf",
+    "min_ram_gb": 16,
+    "recommended_ctx": 16384,
+    "category": "coding",
+    "uncensored": false,
+    "license": "Apache-2.0",
+    "notes": "Specialized coding model. Excellent at code generation, review, and debugging."
+  }
+]

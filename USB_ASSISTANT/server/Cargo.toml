@@ -1,0 +1,28 @@
+[package]
+name = "usb-assistant-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = { version = "0.7.9", features = ["multipart"] }
+tokio = { version = "1", features = ["full"] }
+sysinfo = "0.31"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", features = ["json"] }
+anyhow = "1"
+tower-http = { version = "0.5", features = ["fs", "cors"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+wasmtime = "29.0"
+wasmtime-wasi = "29.0"
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+rfd = "0.15"
+cap-std = "3"
+shell-words = "1"
+sha2 = "0.10"
+tokio-stream = "0.1"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"

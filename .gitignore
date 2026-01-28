@@ -1,0 +1,48 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv
+pip-log.txt
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Build outputs
+dist/
+build/
+target/
+
+# Release bundles
+USB_ASSISTANT_RELEASE/
+
+# Artifact cache
+.tmp_artifacts/
+
+# Application data
+USB_ASSISTANT/data/*
+!USB_ASSISTANT/data/.gitkeep
+
+# Models (can be large)
+USB_ASSISTANT/models/*.gguf
+USB_ASSISTANT/models/*.bin
+
+# Temporary files
+*.tmp
+*.temp

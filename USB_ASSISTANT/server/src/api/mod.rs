@@ -1,0 +1,14 @@
+pub mod profile;
+pub mod voice;
+pub mod vision;
+pub mod health;
+pub mod system_info;
+pub mod models;
+pub mod llm;
+pub mod chat;
+pub mod benchmark;
+pub mod tools;
+pub mod chats;
+pub mod language_packs;
+pub mod diagnostics;
+pub mod firmware_updates;

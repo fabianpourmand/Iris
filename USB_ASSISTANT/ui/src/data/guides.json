@@ -1,0 +1,153 @@
+[
+  {
+    "id": "first-boot",
+    "title": "First Boot Checklist",
+    "category": "Setup",
+    "summary": "Verify power, storage, and baseline services before running models.",
+    "tags": ["startup", "baseline", "offline"],
+    "sections": [
+      {
+        "heading": "Core Checks",
+        "steps": [
+          "Confirm the USB drive is mounted and writable.",
+          "Open the local UI at http://127.0.0.1:7777.",
+          "Run System Calibration once to validate CPU and RAM detection.",
+          "Confirm at least one model shows as available in the Library."
+        ]
+      },
+      {
+        "heading": "If Something Fails",
+        "steps": [
+          "Restart the launcher for your OS and wait 20 seconds.",
+          "Check the Diagnostics panel for missing paths.",
+          "Verify the models folder contains .gguf files."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "model-recovery",
+    "title": "Model Recovery (No Internet)",
+    "category": "Models",
+    "summary": "Bring models back online using only local assets.",
+    "tags": ["models", "offline", "repair"],
+    "sections": [
+      {
+        "heading": "Quick Fix",
+        "steps": [
+          "Open Library and click Rescan to rebuild the index.",
+          "If a model is missing, confirm the file name matches manifest.json.",
+          "Reload the model from the Model Manager card."
+        ]
+      },
+      {
+        "heading": "Deep Repair",
+        "steps": [
+          "Check the models directory for partial downloads or split files.",
+          "Keep only the newest copy of the model.",
+          "Restart the server to reset the index cache."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "offline-safety",
+    "title": "Offline Safety Protocol",
+    "category": "Safety",
+    "summary": "Operate in isolation while keeping outputs controlled.",
+    "tags": ["safety", "offline", "policy"],
+    "sections": [
+      {
+        "heading": "Operator Rules",
+        "steps": [
+          "Review the prompt before sending sensitive requests.",
+          "Keep uncensored mode off unless you have explicit approval.",
+          "Use short prompts when system resources are limited."
+        ]
+      },
+      {
+        "heading": "Output Handling",
+        "steps": [
+          "Store outputs locally in the data folder.",
+          "Do not copy results to networked systems while offline.",
+          "Purge temporary files when the task is complete."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "maintenance-storage",
+    "title": "Storage Hygiene",
+    "category": "Maintenance",
+    "summary": "Keep disk usage predictable and models healthy.",
+    "tags": ["storage", "cleanup", "stability"],
+    "sections": [
+      {
+        "heading": "Weekly",
+        "steps": [
+          "Remove unused model copies from the models folder.",
+          "Archive old chats if data is growing quickly.",
+          "Verify the runtime folder has enough free space."
+        ]
+      },
+      {
+        "heading": "Monthly",
+        "steps": [
+          "Check logs for repeated startup failures.",
+          "Back up data and models to an offline drive.",
+          "Validate the manifest list matches your stored models."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "prompting-field",
+    "title": "Field Prompting Quickstart",
+    "category": "Usage",
+    "summary": "Get reliable answers fast when connectivity is limited.",
+    "tags": ["prompting", "field", "workflow"],
+    "sections": [
+      {
+        "heading": "Structure",
+        "steps": [
+          "State the objective in one sentence.",
+          "List constraints like time, resources, or tools.",
+          "Request the response format you need."
+        ]
+      },
+      {
+        "heading": "Example",
+        "steps": [
+          "Objective: Build a battery check procedure.",
+          "Constraints: 10 minutes, no internet.",
+          "Format: numbered checklist."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "shutdown-emergency",
+    "title": "Emergency Shutdown",
+    "category": "Operations",
+    "summary": "Safely stop models and services during incidents.",
+    "tags": ["shutdown", "safety", "operations"],
+    "sections": [
+      {
+        "heading": "Order of Operations",
+        "steps": [
+          "Unload the active model in Library.",
+          "Close the UI tab.",
+          "Stop the launcher or close the terminal window."
+        ]
+      },
+      {
+        "heading": "If the UI is Unresponsive",
+        "steps": [
+          "Use the OS task manager to stop the server process.",
+          "Reboot the device if the model process will not exit.",
+          "Review diagnostics after restart."
+        ]
+      }
+    ]
+  }
+]
