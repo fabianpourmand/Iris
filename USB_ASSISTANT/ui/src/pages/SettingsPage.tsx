@@ -2,10 +2,12 @@ import { useSystemInfo, useSettings, useProfile, useDiagnostics, useLanguagePack
 import { Toggle } from '../components';
 import { Zap, RotateCcw, AlertTriangle, ShieldCheck, Moon, User, Save, Loader2, Activity, Server, Folder, RefreshCw, Languages, Download, Trash2, CheckCircle2, XCircle, HardDrive, ArrowUpCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useI18n, languageOptions, type LanguageCode } from '../i18n';
 
 const ctxSizeOptions = [2048, 4096, 8192, 16384];
 
 export function SettingsPage() {
+  const { language, setLanguage, t } = useI18n();
   const { systemInfo } = useSystemInfo();
   const { settings, updateSettings, resetSettings } = useSettings();
   const { profile, saveProfile } = useProfile();
@@ -132,6 +134,36 @@ export function SettingsPage() {
             <ShieldCheck className="w-4 h-4 text-[#1f6d5a]" />
             <span className="text-[10px] font-bold text-[#1f6d5a] uppercase tracking-widest">Secure Environment</span>
           </div>
+        </div>
+
+        <div className="glass-card p-4 border border-[#1f6d5a]/15 bg-[#1f6d5a]/5">
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1f6d5a]">
+            {t('settings.offlineGuaranteeTitle', 'Offline Guarantee')}
+          </div>
+          <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed">
+            {t('settings.offlineGuaranteeBody', 'IRIS runs fully offline. No cloud requests, no external accounts, and no network dependency for chat or tools.')}
+          </p>
+        </div>
+
+        <div className="glass-card p-6 glow-border">
+          <h2 className="text-lg font-bold text-[var(--ink)] mb-4 flex items-center gap-2">
+            <Languages className="w-5 h-5 text-[#1f6d5a]" />
+            {t('settings.uiLanguage', 'Interface Language')}
+          </h2>
+          <p className="text-xs text-[var(--muted)] mb-4">
+            {t('settings.uiLanguageHint', 'Change the display language for the UI.')}
+          </p>
+          <select
+            value={language}
+            onChange={(event) => setLanguage(event.target.value as LanguageCode)}
+            className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--glass-strong)] text-[var(--ink)] font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[#1f6d5a]/30"
+          >
+            {languageOptions.map(option => (
+              <option key={option.code} value={option.code}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Identity Section */}

@@ -149,5 +149,80 @@
         ]
       }
     ]
+  },
+  {
+    "id": "offline-quick-answers",
+    "title": "Offline Quick Answers",
+    "category": "Usage",
+    "summary": "Get structured answers fast when the network is down.",
+    "tags": ["offline", "workflow", "checklist"],
+    "sections": [
+      {
+        "heading": "Rapid Prompt",
+        "steps": [
+          "State the goal in one sentence.",
+          "Add constraints: time, tools, and environment.",
+          "Ask for the output format (steps, checklist, table)."
+        ]
+      },
+      {
+        "heading": "Example",
+        "steps": [
+          "Goal: build a 20-minute outage plan.",
+          "Constraints: no internet, flashlight only.",
+          "Format: numbered checklist."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "outage-communications",
+    "title": "Outage Communications",
+    "category": "Operations",
+    "summary": "Create short status updates and check-in scripts.",
+    "tags": ["outage", "comms", "operations"],
+    "sections": [
+      {
+        "heading": "Status Update",
+        "steps": [
+          "Summarize the situation in one line.",
+          "List the next action and ETA.",
+          "Add who to contact and when to report back."
+        ]
+      },
+      {
+        "heading": "Check-in Script",
+        "steps": [
+          "Confirm safety and location.",
+          "Ask for immediate needs.",
+          "Set the next check-in time."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "field-research-offline",
+    "title": "Field Research Offline",
+    "category": "Usage",
+    "summary": "Turn notes into a report when you cannot look things up.",
+    "tags": ["field", "notes", "report"],
+    "sections": [
+      {
+        "heading": "Capture",
+        "steps": [
+          "Collect observations, measurements, and timestamps.",
+          "List unknowns you want to resolve later.",
+          "Summarize the environment and constraints."
+        ]
+      },
+      {
+        "heading": "Synthesize",
+        "steps": [
+          "Ask IRIS to draft a structured report from your notes.",
+          "Request a follow-up questions list.",
+          "Add an action plan for the next visit."
+        ]
+      }
+    ]
   }
 ]

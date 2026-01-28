@@ -60,7 +60,7 @@ export function GuidesPage() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-[var(--ink)] font-serif">Guides</h1>
-            <p className="text-base text-[var(--muted)]">Offline field manuals and recovery playbooks.</p>
+            <p className="text-base text-[var(--muted)]">Offline field manuals, no-internet workflows, and recovery playbooks.</p>
           </div>
         </div>
         <div className="relative">

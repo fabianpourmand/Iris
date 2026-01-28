@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { Terminal, BookOpen, ScrollText, Settings, Activity, ChevronLeft, ChevronRight, FolderSearch } from 'lucide-react';
 import { useSettings } from '../hooks';
+import { useI18n } from '../i18n';
 
 /* 
   IRIS Sidebar 
@@ -13,16 +14,17 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
-const navItems = [
-  { to: '/chat', icon: Terminal, label: 'COMMAND', id: 'CMD' },
-  { to: '/explorer', icon: FolderSearch, label: 'EXPLORER', id: 'EXP' },
-  { to: '/library', icon: BookOpen, label: 'LIBRARY', id: 'LIB' },
-  { to: '/guides', icon: ScrollText, label: 'GUIDES', id: 'GDE' },
-  { to: '/settings', icon: Settings, label: 'CONFIG', id: 'CFG' },
-];
-
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const { settings, updateSettings } = useSettings();
+  const { t } = useI18n();
+
+  const navItems = [
+    { to: '/chat', icon: Terminal, label: t('sidebar.command', 'Command'), id: 'CMD' },
+    { to: '/explorer', icon: FolderSearch, label: t('sidebar.explorer', 'Explorer'), id: 'EXP' },
+    { to: '/library', icon: BookOpen, label: t('sidebar.library', 'Library'), id: 'LIB' },
+    { to: '/guides', icon: ScrollText, label: t('sidebar.guides', 'Guides'), id: 'GDE' },
+    { to: '/settings', icon: Settings, label: t('sidebar.config', 'Config'), id: 'CFG' },
+  ];
 
   return (
     <aside
@@ -41,7 +43,9 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           {!collapsed && (
             <div className="flex flex-col">
               <span className="text-[var(--ink)] font-bold text-xl tracking-tight" style={{ fontFamily: '"EB Garamond", serif' }}>IRIS</span>
-              <span className="text-[var(--muted)] text-sm uppercase tracking-[0.25em] font-mono leading-none">Heritage</span>
+              <span className="text-[var(--muted)] text-sm uppercase tracking-[0.25em] font-mono leading-none">
+                {t('sidebar.heritage', 'Heritage')}
+              </span>
             </div>
           )}
         </div>

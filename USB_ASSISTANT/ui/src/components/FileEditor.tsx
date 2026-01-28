@@ -288,7 +288,7 @@ export function FileEditor({ filePath, rootPath, onClose }: FileEditorProps) {
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-1 min-h-0 overflow-y-auto">
         {error && (
           <div className="mb-3 text-sm font-mono uppercase text-red-600">{error}</div>
         )}
@@ -302,7 +302,7 @@ export function FileEditor({ filePath, rootPath, onClose }: FileEditorProps) {
           onChange={(event) => setContent(event.target.value)}
           disabled={!filePath || loading}
           rows={10}
-          className="w-full min-h-[180px] max-h-[300px] resize-y bg-[var(--paper)] border border-[var(--border)] rounded-xl p-4 text-sm font-mono text-[var(--ink)] focus:outline-none"
+          className="w-full flex-1 min-h-0 resize-y bg-[var(--paper)] border border-[var(--border)] rounded-xl p-4 text-sm font-mono text-[var(--ink)] focus:outline-none"
           placeholder={filePath ? 'Loading file...' : 'Select a file from the explorer'}
         />
         <div className="mt-3 flex items-center justify-between">
@@ -336,7 +336,7 @@ export function FileEditor({ filePath, rootPath, onClose }: FileEditorProps) {
           </button>
         </div>
         {showDiff && (
-          <div className="mt-3 border border-[var(--border)] rounded-xl bg-[var(--paper)] max-h-[200px] overflow-auto">
+          <div className="mt-3 border border-[var(--border)] rounded-xl bg-[var(--paper)] overflow-auto">
             <div className="px-4 py-3 text-sm font-mono uppercase tracking-widest text-[var(--muted)] border-b border-[var(--border)]">
               Diff Preview
             </div>

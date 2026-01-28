@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../hooks';
 import type { LLMCategory } from '../types';
+import { useI18n, languageOptions, type LanguageCode } from '../i18n';
 
 const categoryOptions: { id: LLMCategory; label: string }[] = [
   { id: 'general', label: 'General' },
@@ -15,6 +16,7 @@ const categoryOptions: { id: LLMCategory; label: string }[] = [
 ];
 
 export function OnboardingPage() {
+  const { language: uiLanguage, setLanguage: setUiLanguage, t } = useI18n();
   const navigate = useNavigate();
   const { profile, saveProfile, loading } = useProfile();
   const [name, setName] = useState('');
@@ -22,7 +24,7 @@ export function OnboardingPage() {
   const [experienceLevel, setExperienceLevel] = useState<'novice' | 'intermediate' | 'advanced'>('novice');
   const [responseStyle, setResponseStyle] = useState<'concise' | 'step-by-step'>('concise');
   const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState<LanguageCode>(uiLanguage);
   const [error, setError] = useState<string | null>(null);
 
   const toggleCategory = (category: LLMCategory) => {
@@ -60,6 +62,10 @@ export function OnboardingPage() {
     }
   }, [navigate, profile]);
 
+  useEffect(() => {
+    setLanguage(uiLanguage);
+  }, [uiLanguage]);
+
   return (
     <div className="min-h-screen bg-[var(--paper)] flex items-center justify-center px-6 py-12">
       <div className="max-w-3xl w-full bg-[var(--glass-strong)] border border-[var(--border)] rounded-3xl shadow-2xl p-10">
@@ -69,7 +75,7 @@ export function OnboardingPage() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-[var(--ink)] font-serif">Welcome to IRIS</h1>
-            <p className="text-[var(--muted)] text-sm">Answer a few quick questions to personalize your assistant.</p>
+            <p className="text-[var(--muted)] text-sm">Set up your offline assistant for no-internet missions.</p>
           </div>
         </div>
 
@@ -162,17 +168,23 @@ export function OnboardingPage() {
         </div>
 
         <div className="mt-8">
-          <label className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Language</label>
+          <label className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">
+            {t('onboarding.language', 'Language')}
+          </label>
           <select
             value={language}
-            onChange={(e) => setLanguage(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value as LanguageCode;
+              setLanguage(next);
+              setUiLanguage(next);
+            }}
             className="mt-2 w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--glass-strong)] text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[#1f6d5a]/30"
           >
-            <option value="en">English</option>
-            <option value="es">Spanish</option>
-            <option value="fr">French</option>
-            <option value="de">German</option>
-            <option value="pt">Portuguese</option>
+            {languageOptions.map(option => (
+              <option key={option.code} value={option.code}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </div>
 

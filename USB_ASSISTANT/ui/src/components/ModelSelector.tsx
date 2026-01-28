@@ -62,14 +62,14 @@ export function ModelSelector({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 bg-[var(--glass-strong)] backdrop-blur-sm shadow-sm border border-[var(--border)] hover:border-[rgba(45,42,35,0.3)] px-5 py-3 rounded-xl transition-all w-full md:min-w-[280px] md:w-auto"
+        className="flex items-center gap-3 bg-[var(--glass-strong)] backdrop-blur-sm shadow-sm border border-[var(--border)] hover:border-[rgba(45,42,35,0.3)] px-4 py-2.5 rounded-xl transition-all w-full min-w-0"
       >
-        <div className="flex-1 text-left font-mono">
+        <div className="flex-1 text-left font-mono min-w-0">
           {selectedModel ? (
             <div className="flex flex-col">
               <span className="text-sm font-bold text-[var(--muted)] uppercase tracking-[0.2em] mb-0.5">Active Unit</span>
               <div className="flex items-center gap-2">
-                <span className="text-[var(--ink)] font-bold text-base">{selectedModel.display_name}</span>
+                <span className="text-[var(--ink)] font-bold text-base truncate">{selectedModel.display_name}</span>
                 {selectedModel.uncensored && (
                   <ShieldOff className="w-3.5 h-3.5 text-red-600" />
                 )}
@@ -83,7 +83,7 @@ export function ModelSelector({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full mt-3 right-0 w-full md:w-96 max-w-[90vw] bg-[var(--glass-strong)] border border-[var(--border)] shadow-2xl z-50 rounded-2xl max-h-[32rem] overflow-hidden flex flex-col animate-heritage">
+        <div className="absolute top-full mt-3 right-0 w-full md:w-96 max-w-[90vw] bg-[var(--glass-strong)] border border-[var(--border)] shadow-2xl z-[70] rounded-2xl max-h-[32rem] overflow-hidden flex flex-col animate-heritage">
           <div className="p-3 border-b border-[var(--border)] bg-[var(--paper-2)]">
             <span className="text-sm font-bold text-[var(--muted)] uppercase tracking-[0.2em] font-mono">Select Intelligence Module</span>
           </div>

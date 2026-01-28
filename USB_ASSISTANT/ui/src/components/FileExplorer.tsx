@@ -107,7 +107,7 @@ export function FileExplorer({ onSelect, currentPath = '.', rootPath = '.', onOp
                 </button>
             </div>
 
-            <div className="flex-1 min-h-[220px] max-h-[320px] overflow-y-auto p-2 custom-scrollbar">
+            <div className="flex-1 min-h-0 overflow-y-auto p-2 custom-scrollbar">
                 {loading ? (
                     <div className="flex flex-col items-center justify-center h-full py-12 space-y-3">
                         <Loader2 className="w-5 h-5 text-[#1f6d5a] animate-spin" />

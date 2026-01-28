@@ -4,6 +4,19 @@ import { Layout } from './components';
 import { SetupPage, ChatPage, SettingsPage, DesignPreviewPage, SystemTestPage, OnboardingPage, LibraryPage, GuidesPage, ExplorerPage } from './pages';
 import { useSettings } from './hooks';
 import { themes } from './theme/themes';
+import { I18nProvider } from './i18n';
+
+function SystemEntry() {
+  const completed = (() => {
+    try {
+      return localStorage.getItem('iris.systemTestCompleted') === 'true';
+    } catch {
+      return false;
+    }
+  })();
+
+  return completed ? <Navigate to="/chat" replace /> : <SystemTestPage />;
+}
 
 function App() {
   const { settings } = useSettings();
@@ -34,22 +47,24 @@ function App() {
   }, [settings.dark_mode, settings.survival_mode]);
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<SystemTestPage />} />
-        <Route path="/setup" element={<SetupPage />} />
-        <Route path="/design-preview" element={<DesignPreviewPage />} />
-        <Route path="/onboarding" element={<OnboardingPage />} />
-        <Route element={<Layout />}>
-          <Route path="/chat" element={<ChatPage />} />
-          <Route path="/explorer" element={<ExplorerPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/library" element={<LibraryPage />} />
-          <Route path="/guides" element={<GuidesPage />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <I18nProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<SystemEntry />} />
+          <Route path="/setup" element={<SetupPage />} />
+          <Route path="/design-preview" element={<DesignPreviewPage />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route element={<Layout />}>
+            <Route path="/chat" element={<ChatPage />} />
+            <Route path="/explorer" element={<ExplorerPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/library" element={<LibraryPage />} />
+            <Route path="/guides" element={<GuidesPage />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </I18nProvider>
   );
 }
 

@@ -3,13 +3,14 @@ import {
   PanelLeft, PanelRight, PanelTop, Maximize2, Minimize2, FolderSearch, ShieldAlert, Trash2,
   Camera, X, Mic, Send, Plus, Loader2, ArrowLeft, Pencil, Check,
   Sparkles, Heart, Code2, Calculator, Beaker, Tent, Sprout, Hammer, Lightbulb,
-  Layout, RotateCcw, Eye, type LucideIcon
+  Layout, RotateCcw, Eye, Search, ChevronUp, ShieldCheck, type LucideIcon
 } from 'lucide-react';
 import Webcam from 'react-webcam';
 import { useNavigate } from 'react-router-dom';
 import { useSystemInfo, useLLM, useChat, useModels, useProfile, useChats, useSettings } from '../hooks';
 import { ChatMessage, ModelSelector, FileExplorer, FileEditor, CategoryGrid } from '../components';
 import type { ModelInfo, LLMCategory, ChatSummary, ChatSession } from '../types';
+import { useI18n } from '../i18n';
 
 type ChatCategory = LLMCategory | 'auto';
 type AutoHint = { category: LLMCategory; confidence: number; applied: boolean };
@@ -19,6 +20,55 @@ const STORAGE_KEYS = {
   modelSelections: 'chat.modelSelections',
   showUnavailable: 'chat.showUnavailable',
   showSandboxExplorer: 'chat.showSandboxExplorer',
+  showLeftPanel: 'chat.showLeftPanel',
+  showRightPanel: 'chat.showRightPanel',
+  showTopPanel: 'chat.showTopPanel',
+  defaultModelId: 'models.defaultModelId',
+  quickPromptOffsets: 'chat.quickPromptOffsets',
+};
+
+const readStoredBoolean = (key: string, fallback: boolean) => {
+  try {
+    const value = localStorage.getItem(key);
+    if (value === null) return fallback;
+    return value === 'true';
+  } catch {
+    return fallback;
+  }
+};
+
+const readStoredString = (key: string) => {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const readStoredJson = <T,>(key: string, fallback: T) => {
+  try {
+    const value = localStorage.getItem(key);
+    if (!value) return fallback;
+    return JSON.parse(value) as T;
+  } catch {
+    return fallback;
+  }
+};
+
+const writeStoredJson = (key: string, value: unknown) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // ignore storage failures
+  }
+};
+
+const writeStoredBoolean = (key: string, value: boolean) => {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {
+    // ignore storage failures
+  }
 };
 
 const categoryCards: { id: ChatCategory; label: string; icon: LucideIcon; description: string }[] = [
@@ -44,6 +94,213 @@ const categoryLabels: Record<LLMCategory, string> = {
   survival: 'Survival',
   planting: 'Planting',
   building: 'Building',
+};
+
+type QuickPrompt = {
+  title: string;
+  description: string;
+  prompt: string;
+};
+
+const quickPromptsByCategory: Record<LLMCategory, QuickPrompt[]> = {
+  general: [
+    {
+      title: 'Outage Checklist',
+      description: 'Create a 10-minute response checklist for a home outage.',
+      prompt: 'Create a 10-minute outage response checklist for a small home with no internet. Include safety, power, water, and communications.'
+    },
+    {
+      title: 'Resource Triage',
+      description: 'Prioritize supplies during a short-term outage.',
+      prompt: 'Help me triage limited supplies for 48 hours without power: water, food, lighting, and communication.'
+    },
+    {
+      title: 'Offline Brief',
+      description: 'Turn notes into a short field brief.',
+      prompt: 'Summarize these notes into a concise field brief with action items and open questions.'
+    },
+    {
+      title: 'Comms Script',
+      description: 'Write a short check-in script.',
+      prompt: 'Write a short check-in script for safety status and immediate needs when the network is down.'
+    },
+  ],
+  survival: [
+    {
+      title: 'Shelter Plan',
+      description: 'Build a quick shelter plan with local materials.',
+      prompt: 'Create a step-by-step shelter plan using tarp, cord, and nearby branches. Include site selection and weather checks.'
+    },
+    {
+      title: 'Water Safety',
+      description: 'Offline checklist for water collection and purification.',
+      prompt: 'Provide a checklist for collecting and purifying water in the field with basic tools. Include safety warnings.'
+    },
+    {
+      title: 'Signal & Rescue',
+      description: 'Create a rescue signaling plan.',
+      prompt: 'Draft a rescue signaling plan for daylight and night. Include visual, audio, and location marking steps.'
+    },
+    {
+      title: '72-Hour Plan',
+      description: 'Prioritize tasks for 72 hours offline.',
+      prompt: 'Create a 72-hour survival task list prioritizing shelter, water, and heat with limited resources.'
+    }
+  ],
+  medical: [
+    {
+      title: 'Bleeding Control',
+      description: 'Immediate first-aid steps for bleeding.',
+      prompt: 'Provide a first-aid checklist for heavy bleeding. Include what to avoid and when to escalate.'
+    },
+    {
+      title: 'Burn Care',
+      description: 'Offline burn response basics.',
+      prompt: 'Give a step-by-step response for minor burns. Include cooling, dressing, and red flags.'
+    },
+    {
+      title: 'Shock Protocol',
+      description: 'Identify and respond to shock symptoms.',
+      prompt: 'List signs of shock and the immediate response steps in a field setting.'
+    },
+    {
+      title: 'Triage Notes',
+      description: 'Structure patient notes quickly.',
+      prompt: 'Create a simple triage note template for multiple patients when offline.'
+    }
+  ],
+  building: [
+    {
+      title: 'Rapid Repair',
+      description: 'Diagnose a failed tool or device.',
+      prompt: 'Build a step-by-step repair plan for a device that will not power on. Assume basic tools only.'
+    },
+    {
+      title: 'Structural Check',
+      description: 'Quick safety inspection list.',
+      prompt: 'Provide a quick structural safety inspection checklist for a damaged shed or small structure.'
+    },
+    {
+      title: 'Material Plan',
+      description: 'List what materials you need.',
+      prompt: 'Create a materials and tools list for a temporary roof patch using common hardware store items.'
+    },
+    {
+      title: 'Power Basics',
+      description: 'Offline electrical safety checklist.',
+      prompt: 'Provide an electrical safety checklist for diagnosing a tripped circuit without internet.'
+    }
+  ],
+  planting: [
+    {
+      title: 'Soil Quick Test',
+      description: 'Assess soil quickly in the field.',
+      prompt: 'Describe a quick soil assessment process using simple tools. Include texture, drainage, and pH clues.'
+    },
+    {
+      title: 'Watering Plan',
+      description: 'Conserve water over 7 days.',
+      prompt: 'Create a 7-day watering plan for a small garden with limited water.'
+    },
+    {
+      title: 'Crop Triage',
+      description: 'Prioritize crops during shortage.',
+      prompt: 'Help me prioritize which crops to save during a water shortage and why.'
+    },
+    {
+      title: 'Pest Response',
+      description: 'Offline pest control checklist.',
+      prompt: 'Provide a quick pest response checklist using safe, low-toxicity methods.'
+    }
+  ],
+  coding: [
+    {
+      title: 'Bug Triage',
+      description: 'Create a fast debug checklist.',
+      prompt: 'Create a fast debug checklist for a failing script. Include environment, logs, and minimal repro steps.'
+    },
+    {
+      title: 'Offline Patch',
+      description: 'Draft a small patch plan.',
+      prompt: 'Draft a minimal patch plan with risk assessment and rollback steps for a critical bug.'
+    },
+    {
+      title: 'System Restore',
+      description: 'Recover a broken build offline.',
+      prompt: 'Provide a recovery plan for a broken build without internet access.'
+    },
+    {
+      title: 'Log Summary',
+      description: 'Summarize logs into root causes.',
+      prompt: 'Summarize these logs into likely root causes and next diagnostic steps.'
+    }
+  ],
+  mathematics: [
+    {
+      title: 'Quick Formula',
+      description: 'Solve a formula and show steps.',
+      prompt: 'Solve the following formula and show steps. Then provide a quick check for correctness.'
+    },
+    {
+      title: 'Unit Conversion',
+      description: 'Convert units in a table.',
+      prompt: 'Convert this table of measurements from imperial to metric and show the converted values.'
+    },
+    {
+      title: 'Estimate Check',
+      description: 'Sanity-check a numeric result.',
+      prompt: 'Estimate the result using back-of-the-envelope math and compare it to the given value.'
+    },
+    {
+      title: 'Step-by-step',
+      description: 'Explain a solution carefully.',
+      prompt: 'Explain the solution step-by-step with clear reasoning and notation.'
+    }
+  ],
+  chemistry: [
+    {
+      title: 'Reaction Safety',
+      description: 'Safety checklist for a reaction.',
+      prompt: 'Provide a safety checklist for a basic chemical reaction in a field or classroom setting.'
+    },
+    {
+      title: 'Mixing Guide',
+      description: 'Prepare a solution safely.',
+      prompt: 'Describe how to prepare a simple solution safely, including dilution order and warnings.'
+    },
+    {
+      title: 'Labeling',
+      description: 'Create a container label template.',
+      prompt: 'Create a container label template with required safety and storage fields.'
+    },
+    {
+      title: 'Spill Response',
+      description: 'Quick spill response steps.',
+      prompt: 'Provide a quick spill response checklist for a small chemical spill.'
+    }
+  ],
+  uncensored: [
+    {
+      title: 'Open Research',
+      description: 'Explore a topic without filters.',
+      prompt: 'Provide an unfiltered overview of this topic, including controversial angles and risks.'
+    },
+    {
+      title: 'Freeform Ideas',
+      description: 'Generate creative directions.',
+      prompt: 'Generate a list of unconventional approaches to solve this problem.'
+    },
+    {
+      title: 'Rapid Debate',
+      description: 'Argue both sides quickly.',
+      prompt: 'Present the strongest argument for and against this position in brief bullets.'
+    },
+    {
+      title: 'Raw Notes',
+      description: 'Turn raw notes into an outline.',
+      prompt: 'Turn these raw notes into a structured outline without filtering.'
+    }
+  ],
 };
 
 // categoryColors removed as it was unused
@@ -88,6 +345,7 @@ const preferredModelIds: Partial<Record<LLMCategory, string[]>> = {
 
 export function ChatPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const { systemInfo, loading: systemLoading } = useSystemInfo();
   const { models, loading: modelsLoading } = useModels();
   const { status, loading: llmLoading, start } = useLLM();
@@ -113,7 +371,7 @@ export function ChatPage() {
     const stored = localStorage.getItem(STORAGE_KEYS.category);
     return isChatCategory(stored) ? stored : 'auto';
   });
-  const [chatSearch] = useState('');
+  const [chatSearch, setChatSearch] = useState('');
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [, setCategoryLock] = useState<LLMCategory | null>(null);
   const [autoHint, setAutoHint] = useState<AutoHint | null>(null);
@@ -150,9 +408,24 @@ export function ChatPage() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [recording, setRecording] = useState(false);
-  const [showLeftPanel, setShowLeftPanel] = useState(true);
-  const [showRightPanel, setShowRightPanel] = useState(true);
-  const [showTopPanel, setShowTopPanel] = useState(true);
+  const [showLeftPanel, setShowLeftPanel] = useState(() => {
+    const preferred = readStoredBoolean(STORAGE_KEYS.showLeftPanel, true);
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches) {
+      return false;
+    }
+    return preferred;
+  });
+  const [showRightPanel, setShowRightPanel] = useState(() => {
+    const preferred = readStoredBoolean(STORAGE_KEYS.showRightPanel, true);
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches) {
+      return false;
+    }
+    return preferred;
+  });
+  const [showTopPanel, setShowTopPanel] = useState(() => readStoredBoolean(STORAGE_KEYS.showTopPanel, true));
+  const [quickPromptOffsets, setQuickPromptOffsets] = useState<Record<string, number>>(() =>
+    readStoredJson<Record<string, number>>(STORAGE_KEYS.quickPromptOffsets, {})
+  );
   const [activeFile, setActiveFile] = useState<string | null>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [showJump, setShowJump] = useState(false);
@@ -166,11 +439,59 @@ export function ChatPage() {
   const explorerVisible = showSandboxExplorer || settings.advanced_mode;
 
   useEffect(() => {
-    if (window.innerWidth < 1280) {
-      setShowLeftPanel(false);
-      setShowRightPanel(false);
+    if (typeof window === 'undefined') return;
+
+    const mediaQuery = window.matchMedia('(max-width: 1023px)');
+    const syncPanels = () => {
+      if (mediaQuery.matches) {
+        setShowLeftPanel(false);
+        setShowRightPanel(false);
+        return;
+      }
+
+      setShowLeftPanel(readStoredBoolean(STORAGE_KEYS.showLeftPanel, true));
+      setShowRightPanel(readStoredBoolean(STORAGE_KEYS.showRightPanel, true));
+      setShowTopPanel(readStoredBoolean(STORAGE_KEYS.showTopPanel, true));
+    };
+
+    syncPanels();
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', syncPanels);
+    } else {
+      mediaQuery.addListener(syncPanels);
     }
+
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', syncPanels);
+      } else {
+        mediaQuery.removeListener(syncPanels);
+      }
+    };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.matchMedia('(min-width: 1024px)').matches) return;
+    writeStoredBoolean(STORAGE_KEYS.showLeftPanel, showLeftPanel);
+  }, [showLeftPanel]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.matchMedia('(min-width: 1024px)').matches) return;
+    writeStoredBoolean(STORAGE_KEYS.showRightPanel, showRightPanel);
+  }, [showRightPanel]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.matchMedia('(min-width: 1024px)').matches) return;
+    writeStoredBoolean(STORAGE_KEYS.showTopPanel, showTopPanel);
+  }, [showTopPanel]);
+
+  useEffect(() => {
+    writeStoredJson(STORAGE_KEYS.quickPromptOffsets, quickPromptOffsets);
+  }, [quickPromptOffsets]);
 
   const toggleZenMode = () => {
     const newState = !isZenMode;
@@ -201,7 +522,7 @@ export function ChatPage() {
   const filteredChats = useMemo(() => {
     if (!chatSearch.trim()) return chats;
     const term = chatSearch.toLowerCase();
-    return chats.filter(chat => chat.title.toLowerCase().includes(term));
+    return chats.filter(chat => (chat.title || '').toLowerCase().includes(term));
   }, [chats, chatSearch]);
 
   const compatibleModels = useMemo(() => {
@@ -237,12 +558,30 @@ export function ChatPage() {
     return result;
   }, [compatibleByCategory]);
 
+  const defaultModelId = useMemo(() => {
+    const stored = readStoredString(STORAGE_KEYS.defaultModelId);
+    if (!stored) return null;
+    return compatibleModels.some(model => model.id === stored) ? stored : null;
+  }, [compatibleModels]);
+
   const resolvedAutoCategory: LLMCategory = autoHint?.applied ? autoHint.category : 'general';
   const activeCategory: LLMCategory = selectedCategory === 'auto' ? resolvedAutoCategory : selectedCategory;
   const storedModelId = modelSelections[activeCategory];
   const recommendedModelId = recommendedByCategory[activeCategory] || null;
-  const activeModelId = storedModelId && compatibleModels.some(model => model.id === storedModelId) ? storedModelId : recommendedModelId;
+  const activeModelId = storedModelId && compatibleModels.some(model => model.id === storedModelId)
+    ? storedModelId
+    : (defaultModelId || recommendedModelId);
   const activeModel = models.find(model => model.id === activeModelId) || null;
+
+  const quickPromptRotation = useMemo(() => {
+    const prompts = quickPromptsByCategory[activeCategory] || quickPromptsByCategory.general;
+    if (prompts.length === 0) return prompts;
+    const offset = quickPromptOffsets[activeCategory] ?? 0;
+    const normalized = offset % prompts.length;
+    return prompts.slice(normalized).concat(prompts.slice(0, normalized));
+  }, [activeCategory, quickPromptOffsets]);
+
+  const quickPrompts = useMemo(() => quickPromptRotation.slice(0, 4), [quickPromptRotation]);
 
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.category, selectedCategory); }, [selectedCategory]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.modelSelections, JSON.stringify(modelSelections)); }, [modelSelections]);
@@ -453,6 +792,20 @@ export function ChatPage() {
     setModelSelections(prev => ({ ...prev, [activeCategory]: modelId }));
   };
 
+  const handleQuickPrompt = (prompt: string) => {
+    setInputValue(prompt);
+    setQuickPromptOffsets(prev => {
+      const prompts = quickPromptsByCategory[activeCategory] || quickPromptsByCategory.general;
+      if (!prompts.length) return prev;
+      const currentOffset = prev[activeCategory] ?? 0;
+      const nextOffset = (currentOffset + 1) % prompts.length;
+      return { ...prev, [activeCategory]: nextOffset };
+    });
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+  };
+
   const handleSelectChat = (chat: ChatSummary) => {
     if (chat.id === activeChatId) return;
     openChat(chat.id).catch(() => null);
@@ -554,34 +907,42 @@ export function ChatPage() {
     return (
       <div key={chat.id} className="relative group">
         {isEditing ? (
-          <div className={`w-full text-left px-3 py-3 rounded-xl border transition-all ${isActive ? 'bg-[#1f6d5a]/10 border-[#1f6d5a]/30' : 'bg-[var(--glass)] border-[var(--border)]'}`}>
+          <div className={`w-full text-left px-2.5 py-2 pr-12 rounded-lg border transition-all ${isActive ? 'bg-[#1f6d5a]/10 border-[#1f6d5a]/30' : 'bg-[var(--glass)] border-[var(--border)]'}`}>
             <input
               value={titleDraft}
               onChange={(event) => setTitleDraft(event.target.value)}
               onKeyDown={(event) => handleTitleKeyDown(event, chat.id)}
               placeholder="Enter title"
-              className="w-full bg-transparent border-0 text-base font-semibold focus:outline-none"
+              className="w-full bg-transparent border-0 text-sm font-semibold focus:outline-none"
               autoFocus
             />
-            <div className="text-sm font-mono opacity-60 uppercase mt-1">{formatChatTime(chat.updated_at)} • {chat.message_count} msgs</div>
+            <div className="mt-0.5 flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.2em] text-[var(--muted)]">
+              <span>{formatChatTime(chat.updated_at)}</span>
+              <span className="h-1 w-1 rounded-full bg-[var(--muted)]/60" />
+              <span>{chat.message_count} msgs</span>
+            </div>
           </div>
         ) : (
-          <button onClick={() => handleSelectChat(chat)} className={`w-full text-left px-3 py-3 rounded-xl border transition-all ${isActive ? 'bg-[#1f6d5a]/10 border-[#1f6d5a]/30' : 'bg-[var(--glass)] border-[var(--border)]'}`}>
+          <button onClick={() => handleSelectChat(chat)} className={`w-full text-left px-2.5 py-2 pr-12 rounded-lg border transition-all ${isActive ? 'bg-[#1f6d5a]/10 border-[#1f6d5a]/30' : 'bg-[var(--glass)] border-[var(--border)]'}`}>
             <div className="flex items-center gap-2">
               {isTitleLoading && <Loader2 className="w-3.5 h-3.5 text-[#1f6d5a] animate-spin" />}
-              <div className="text-base font-semibold truncate">{titleText}</div>
+              <div className="text-sm font-semibold truncate">{titleText}</div>
             </div>
-            <div className="text-sm font-mono opacity-60 uppercase mt-1">{formatChatTime(chat.updated_at)} • {chat.message_count} msgs</div>
+            <div className="mt-0.5 flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.2em] text-[var(--muted)]">
+              <span>{formatChatTime(chat.updated_at)}</span>
+              <span className="h-1 w-1 rounded-full bg-[var(--muted)]/60" />
+              <span>{chat.message_count} msgs</span>
+            </div>
           </button>
         )}
-        <div className="absolute top-3 right-3 flex items-center gap-1 opacity-100 xl:opacity-0 xl:group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-2.5 right-2.5 flex items-center gap-1 opacity-100 xl:opacity-0 xl:group-hover:opacity-100 transition-opacity">
           {isEditing ? (
             <>
               <button
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => handleSaveTitleEdit(chat.id)}
                 disabled={isTitleLoading}
-                className="p-2 rounded-md border border-[var(--border)] bg-[var(--glass-strong)] disabled:opacity-40"
+                className="p-1.5 rounded-md border border-[var(--border)] bg-[var(--glass-strong)] disabled:opacity-40"
                 title="Save title"
               >
                 <Check className="w-3.5 h-3.5 text-[#1f6d5a]" />
@@ -590,7 +951,7 @@ export function ChatPage() {
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={handleCancelTitleEdit}
                 disabled={isTitleLoading}
-                className="p-2 rounded-md border border-[var(--border)] bg-[var(--glass-strong)] disabled:opacity-40"
+                className="p-1.5 rounded-md border border-[var(--border)] bg-[var(--glass-strong)] disabled:opacity-40"
                 title="Cancel"
               >
                 <X className="w-3.5 h-3.5 text-[var(--muted)]" />
@@ -601,12 +962,12 @@ export function ChatPage() {
               <button
                 onClick={() => handleStartTitleEdit(chat)}
                 disabled={isTitleLoading}
-                className="p-2 rounded-md border border-[var(--border)] bg-[var(--glass-strong)] disabled:opacity-40"
+                className="p-1.5 rounded-md border border-[var(--border)] bg-[var(--glass-strong)] disabled:opacity-40"
                 title="Edit title"
               >
                 <Pencil className="w-3.5 h-3.5 text-[var(--muted)]" />
               </button>
-              <button onClick={() => handleDeleteChat(chat.id)} className="p-2 rounded-md border border-[var(--border)] bg-[var(--glass-strong)]">
+              <button onClick={() => handleDeleteChat(chat.id)} className="p-1.5 rounded-md border border-[var(--border)] bg-[var(--glass-strong)]">
                 <Trash2 className="w-3.5 h-3.5 text-red-600" />
               </button>
             </>
@@ -684,33 +1045,50 @@ export function ChatPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col xl:flex-row xl:items-stretch min-w-0 min-h-0 bg-transparent overflow-hidden gap-3 sm:gap-4 md:gap-5 xl:gap-6 p-3 sm:p-4 md:p-5 lg:p-6">
+    <div className="flex-1 flex flex-col lg:flex-row lg:items-stretch min-w-0 min-h-0 bg-transparent overflow-hidden gap-3 sm:gap-4 md:gap-5 lg:gap-6 p-3 sm:p-4 md:p-5 lg:p-6">
       {showLeftPanel && (
-        <aside className="hidden xl:flex w-48 border border-[var(--border)] bg-[var(--glass)] backdrop-blur-md flex-col animate-heritage shrink-0 overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(45,42,35,0.08)]">
-          <div className="p-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--glass-strong)]">
-            <h2 className="text-base font-bold text-[var(--ink)] uppercase tracking-[0.2em] font-mono">Conversations</h2>
-            <button onClick={() => handleNewChat()} className="p-3 rounded-lg border border-[var(--border)] bg-[var(--glass-strong)] hover:bg-[var(--paper-2)] transition-all">
+        <aside className="hidden lg:flex w-[clamp(8.5rem,12vw,11rem)] border border-[var(--border)] bg-[var(--glass)] backdrop-blur-md flex-col animate-heritage shrink-0 overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(45,42,35,0.08)]">
+          <div className="px-3 py-2.5 border-b border-[var(--border)] flex items-center justify-between gap-2 bg-[var(--glass-strong)]">
+            <h2 className="text-[11px] font-bold text-[var(--ink)] uppercase tracking-[0.2em] font-mono whitespace-nowrap">
+              {t('chat.chats', 'Chats')}
+            </h2>
+            <button onClick={() => handleNewChat()} className="h-9 w-9 inline-flex items-center justify-center rounded-md border border-[var(--border)] bg-[var(--glass-strong)] hover:bg-[var(--paper-2)] transition-all">
               <Plus className="w-4 h-4" />
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          <div className="px-2 pt-2">
+            <div className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--paper)] px-2 py-1.5">
+              <Search className="w-3.5 h-3.5 text-[var(--muted)]" />
+              <input
+                value={chatSearch}
+                onChange={(event) => setChatSearch(event.target.value)}
+                placeholder={t('chat.search', 'Search')}
+                className="w-full bg-transparent border-0 text-[11px] font-mono uppercase tracking-[0.18em] text-[var(--muted)] focus:outline-none"
+              />
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
             {filteredChats.map(renderChatItem)}
           </div>
         </aside>
       )}
 
       <section className="flex-1 flex flex-col min-w-0 min-h-0 bg-[var(--glass)] border border-[var(--border)] rounded-3xl shadow-[0_20px_60px_rgba(45,42,35,0.08)] overflow-hidden">
-        <header className="bg-[var(--glass-strong)] backdrop-blur-md border-b border-[var(--border)] px-3 sm:px-4 md:px-5 lg:px-6 py-3 sm:py-4 flex flex-wrap items-center gap-4 shadow-sm">
-          <div className="flex items-center gap-4 flex-1 min-w-[220px]">
+        <header className="relative z-30 bg-[var(--glass-strong)] backdrop-blur-md border-b border-[var(--border)] px-3 sm:px-4 md:px-5 lg:px-6 py-3 sm:py-4 shadow-sm flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-3 flex-1 min-w-0 flex-wrap">
             <button onClick={() => navigate('/')} className="h-11 w-11 inline-flex items-center justify-center rounded-lg hover:text-[#1f6d5a] hover:bg-[var(--paper-2)] transition-colors"><ArrowLeft className="w-5 h-5" /></button>
             <div className="px-4 py-2.5 rounded-lg border bg-[#1f6d5a]/5 border-[#1f6d5a]/20 text-[#1f6d5a] text-sm font-bold uppercase tracking-widest font-mono">
               {selectedCategory === 'auto' ? 'Auto' : categoryLabels[activeCategory]}
             </div>
-            <div className="hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--paper)]/40">
-              <div className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-[var(--muted)]">Unit</div>
-              <div className="min-w-[120px]">
-                <ModelSelector models={visibleModels} selectedModelId={activeModelId} onSelect={handleModelSelect} ramAvailable={ramAvailable} categoryFilter={activeCategory} showUnavailable={showUnavailable} />
-              </div>
+            <div className="min-w-0 w-[min(360px,55vw)]">
+              <ModelSelector
+                models={visibleModels}
+                selectedModelId={activeModelId}
+                onSelect={handleModelSelect}
+                ramAvailable={ramAvailable}
+                categoryFilter={activeCategory}
+                showUnavailable={showUnavailable}
+              />
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -718,15 +1096,33 @@ export function ChatPage() {
             <button onClick={() => setShowTopPanel(!showTopPanel)} className={`h-11 w-11 inline-flex items-center justify-center rounded-lg ${showTopPanel ? 'bg-[#1f6d5a]/10 text-[#1f6d5a]' : 'text-[var(--muted)]'}`}><PanelTop className="w-5 h-5" /></button>
             <button onClick={() => setShowRightPanel(!showRightPanel)} className={`h-11 w-11 inline-flex items-center justify-center rounded-lg ${showRightPanel ? 'bg-[#1f6d5a]/10 text-[#1f6d5a]' : 'text-[var(--muted)]'}`}><PanelRight className="w-5 h-5" /></button>
             <button onClick={toggleZenMode} className="h-11 w-11 inline-flex items-center justify-center rounded-lg text-[var(--muted)]">{isZenMode ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}</button>
+            <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-full border border-[#1f6d5a]/25 bg-[#1f6d5a]/10 text-[#1f6d5a] text-[10px] font-bold uppercase tracking-widest font-mono">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              {t('chat.offline', 'Offline')}
+            </div>
             <div className="flex items-center gap-3 px-4 py-2.5 bg-[var(--glass-strong)] rounded-full border border-[var(--border)] ml-2">
               <div className={`w-2 h-2 rounded-full ${status.running ? 'bg-[#1f6d5a] animate-pulse' : 'bg-amber-500'}`} />
-              <span className="text-sm font-bold uppercase font-mono">{status.running ? 'Ready' : 'Calibrating'}</span>
+              <span className="text-sm font-bold uppercase font-mono">
+                {status.running ? t('chat.ready', 'Ready') : t('chat.calibrating', 'Calibrating')}
+              </span>
             </div>
           </div>
         </header>
 
         {showTopPanel && (
-          <div className="px-4 sm:px-6 py-4 border-b border-[var(--border)] bg-[var(--paper)]/60 flex flex-col gap-4">
+          <div className="relative z-10 px-4 sm:px-6 py-4 border-b border-[var(--border)] bg-[var(--paper)]/60 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+            <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] font-mono">
+              {t('chat.categories', 'Categories')}
+            </div>
+            <button
+              onClick={() => setShowTopPanel(false)}
+              className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] hover:text-[#1f6d5a]"
+            >
+              {t('chat.hide', 'Hide')}
+              <ChevronUp className="w-3.5 h-3.5" />
+            </button>
+            </div>
             <CategoryGrid
               categories={categoryCards}
               selectedCategory={selectedCategory}
@@ -741,9 +1137,39 @@ export function ChatPage() {
           className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 sm:px-4 md:px-5 lg:px-6 py-6 sm:py-8 md:py-10 space-y-4 sm:space-y-6 md:space-y-8 bg-[var(--paper)]"
         >
           {messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center space-y-6 opacity-30">
-              <img src="/logo.jpg" alt="IRIS" className="w-24 h-24 rounded-2xl grayscale" />
-              <div className="text-xl font-serif italic uppercase tracking-widest">IRIS • Project Command</div>
+            <div className="h-full flex flex-col items-center justify-center text-center space-y-6">
+              <div className="flex flex-col items-center gap-3 text-center">
+                <img src="/logo.jpg" alt="IRIS" className="w-24 h-24 rounded-2xl grayscale" />
+                <div className="text-xl font-serif italic uppercase tracking-widest text-[var(--muted)]">IRIS • Project Command</div>
+              </div>
+              <div className="max-w-2xl w-full">
+                <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] font-mono">
+                  {t('chat.quickPromptsTitle', 'Offline quick prompts')}
+                </div>
+                <div className="mt-2 text-sm text-[var(--muted)]">
+                  {t('chat.quickPromptsSubtitle', 'Tap one to preload a question and get moving.')}
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {quickPrompts.map((item, index) => (
+                    <button
+                      key={item.title}
+                      onClick={() => handleQuickPrompt(item.prompt)}
+                      className={`text-left rounded-xl border border-[var(--border)] bg-[var(--glass-strong)] p-4 hover:border-[#1f6d5a]/40 hover:bg-[#1f6d5a]/5 transition-all ${index >= 2 ? 'hidden sm:block' : ''}`}
+                    >
+                      <div className="text-sm font-bold text-[var(--ink)]">{item.title}</div>
+                      <div className="mt-2 text-xs text-[var(--muted)] leading-relaxed">{item.description}</div>
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-5 flex items-center justify-center">
+                  <button
+                    onClick={() => navigate('/guides')}
+                    className="px-4 py-2 rounded-full border border-[var(--border)] bg-[var(--glass-strong)] text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] hover:text-[#1f6d5a] hover:border-[#1f6d5a]/40 transition-all"
+                  >
+                    {t('chat.openGuides', 'Open Guides')}
+                  </button>
+                </div>
+              </div>
             </div>
           ) : (
             messages.map((msg, idx) => <ChatMessage key={idx} message={msg} timestamp={msg.timestamp} />)
@@ -857,7 +1283,7 @@ export function ChatPage() {
       </section>
 
       {showRightPanel && (
-        <aside className="hidden xl:flex w-72 border border-[var(--border)] bg-[var(--glass)] backdrop-blur-md flex-col p-6 space-y-8 animate-heritage overflow-y-auto shrink-0 min-w-0 rounded-2xl shadow-[0_12px_30px_rgba(45,42,35,0.08)]">
+        <aside className="hidden lg:flex w-[clamp(14rem,20vw,18rem)] border border-[var(--border)] bg-[var(--glass)] backdrop-blur-md flex-col p-6 space-y-8 animate-heritage overflow-y-auto shrink-0 min-w-0 rounded-2xl shadow-[0_12px_30px_rgba(45,42,35,0.08)]">
           <div>
             <div className="text-sm font-mono font-bold uppercase opacity-50 mb-3 tracking-widest">Operator Settings</div>
             <div className="text-xl font-serif font-bold italic">{profile?.name || 'IRIS_USER'}</div>
@@ -912,28 +1338,41 @@ export function ChatPage() {
       )}
 
       {showLeftPanel && (
-        <div className="xl:hidden fixed inset-0 z-50">
+        <div className="lg:hidden fixed inset-0 z-50">
           <button
             onClick={() => setShowLeftPanel(false)}
             className="absolute inset-0 bg-black/40"
             aria-label="Close conversations panel"
           />
           <aside className="absolute left-0 top-0 h-full w-[88vw] max-w-sm max-h-[calc(100vh-40px)] border border-[var(--border)] bg-[var(--glass)] backdrop-blur-md flex flex-col overflow-y-auto shadow-[0_12px_30px_rgba(45,42,35,0.2)]">
-            <div className="p-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--glass-strong)]">
-              <h2 className="text-base font-bold text-[var(--ink)] uppercase tracking-[0.2em] font-mono">Conversations</h2>
-              <button onClick={() => handleNewChat()} className="p-3 rounded-lg border border-[var(--border)] bg-[var(--glass-strong)] hover:bg-[var(--paper-2)] transition-all">
-                <Plus className="w-4 h-4" />
-              </button>
+          <div className="px-3 py-2.5 border-b border-[var(--border)] flex items-center justify-between gap-2 bg-[var(--glass-strong)]">
+            <h2 className="text-[11px] font-bold text-[var(--ink)] uppercase tracking-[0.2em] font-mono whitespace-nowrap">
+              {t('chat.chats', 'Chats')}
+            </h2>
+            <button onClick={() => handleNewChat()} className="h-9 w-9 inline-flex items-center justify-center rounded-md border border-[var(--border)] bg-[var(--glass-strong)] hover:bg-[var(--paper-2)] transition-all">
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="px-2 pt-2">
+            <div className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--paper)] px-2 py-1.5">
+              <Search className="w-3.5 h-3.5 text-[var(--muted)]" />
+              <input
+                value={chatSearch}
+                onChange={(event) => setChatSearch(event.target.value)}
+                placeholder={t('chat.search', 'Search')}
+                className="w-full bg-transparent border-0 text-[11px] font-mono uppercase tracking-[0.18em] text-[var(--muted)] focus:outline-none"
+              />
             </div>
-            <div className="flex-1 overflow-y-auto p-3 space-y-2">
-              {filteredChats.map(renderChatItem)}
-            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
+            {filteredChats.map(renderChatItem)}
+          </div>
           </aside>
         </div>
       )}
 
       {showRightPanel && (
-        <div className="xl:hidden fixed inset-0 z-50">
+        <div className="lg:hidden fixed inset-0 z-50">
           <button
             onClick={() => setShowRightPanel(false)}
             className="absolute inset-0 bg-black/40"

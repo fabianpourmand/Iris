@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
-import { BookOpen, Search, Layers, Cpu, Play, StopCircle, RefreshCw } from 'lucide-react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
+import { BookOpen, Search, Layers, Cpu, Play, StopCircle, RefreshCw, Star } from 'lucide-react';
 import { useModels, useSystemInfo, useLLM, useSettings } from '../hooks';
+import { useI18n } from '../i18n';
 import skillsData from '../data/skills.json';
 import type { ModelInfo } from '../types';
 
@@ -11,11 +12,17 @@ interface Skill {
 }
 
 export function LibraryPage() {
+  const { t } = useI18n();
   const { models, loading: modelsLoading, error: modelsError, refreshIndex } = useModels();
   const { systemInfo } = useSystemInfo();
   const { status, loading: llmLoading, error: llmError, start, stop } = useLLM();
   const { settings } = useSettings();
   const [search, setSearch] = useState('');
+  const [loadingModelId, setLoadingModelId] = useState<string | null>(null);
+  const [defaultModelId, setDefaultModelId] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('models.defaultModelId');
+  });
   const skills = skillsData as Skill[];
 
   const installedModels = useMemo(() => models.filter(m => m.available !== false), [models]);
@@ -29,31 +36,61 @@ export function LibraryPage() {
   }, [search, skills]);
 
   const activeModel = models.find(model => model.id === status.model_id) || null;
+  const defaultModel = defaultModelId ? models.find(model => model.id === defaultModelId) || null : null;
+
+  const updateDefaultModel = useCallback((modelId: string) => {
+    setDefaultModelId(prev => {
+      const nextValue = prev === modelId ? null : modelId;
+      try {
+        if (nextValue) {
+          localStorage.setItem('models.defaultModelId', nextValue);
+        } else {
+          localStorage.removeItem('models.defaultModelId');
+        }
+      } catch {
+        // ignore storage failures
+      }
+      return nextValue;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!llmLoading) setLoadingModelId(null);
+  }, [llmLoading]);
 
   const handleLoadModel = async (model: ModelInfo) => {
-    const response = await fetch('/api/llm/preflight', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model_id: model.id,
-        ctx: settings.ctx_size,
-        threads: settings.threads,
-        gpu_layers: 0,
-      }),
-    });
+    setLoadingModelId(model.id);
+    try {
+      const response = await fetch('/api/llm/preflight', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model_id: model.id,
+          ctx: settings.ctx_size,
+          threads: settings.threads,
+          gpu_layers: 0,
+        }),
+      });
 
-    const preflight = await response.json();
-    if (!response.ok || !preflight?.compatible) {
-      window.alert(preflight?.message || 'Model is not compatible with this system.');
-      return;
+      const preflight = await response.json();
+      if (!response.ok || !preflight?.compatible) {
+        window.alert(preflight?.message || 'Model is not compatible with this system.');
+        setLoadingModelId(null);
+        return;
+      }
+
+      if (preflight?.hot_swap?.requires_swap) {
+        const confirmed = window.confirm(preflight.hot_swap.reason || `Hot swap to ${model.display_name}?`);
+        if (!confirmed) {
+          setLoadingModelId(null);
+          return;
+        }
+      }
+
+      await start(model.id);
+    } catch (err) {
+      setLoadingModelId(null);
     }
-
-    if (preflight?.hot_swap?.requires_swap) {
-      const confirmed = window.confirm(preflight.hot_swap.reason || `Hot swap to ${model.display_name}?`);
-      if (!confirmed) return;
-    }
-
-    await start(model.id);
   };
 
   const handleUnloadModel = async () => {
@@ -96,8 +133,8 @@ export function LibraryPage() {
       <section className="bg-[var(--glass)] border border-[var(--border)] rounded-2xl p-6 shadow-lg">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-lg font-bold text-[var(--ink)]">Model Manager</h2>
-            <p className="text-xs text-[var(--muted)]">Load, unload, and check GGUF compatibility.</p>
+            <h2 className="text-lg font-bold text-[var(--ink)]">{t('library.modelManagerTitle', 'Model Manager')}</h2>
+            <p className="text-xs text-[var(--muted)]">{t('library.modelManagerSubtitle', 'Load, unload, and check GGUF compatibility.')}</p>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -106,7 +143,7 @@ export function LibraryPage() {
               className="px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--glass-strong)] text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 hover:border-[rgba(45,42,35,0.3)]"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${modelsLoading ? 'animate-spin' : ''}`} />
-              Rescan
+              {t('library.rescan', 'Rescan')}
             </button>
             <button
               onClick={handleUnloadModel}
@@ -114,7 +151,7 @@ export function LibraryPage() {
               className="px-4 py-2 rounded-lg border border-red-500/40 bg-red-500/10 text-red-700 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 disabled:opacity-40"
             >
               <StopCircle className="w-3.5 h-3.5" />
-              Unload
+              {t('library.unload', 'Unload')}
             </button>
           </div>
         </div>
@@ -125,9 +162,10 @@ export function LibraryPage() {
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-3 mb-4 text-[10px] font-mono uppercase tracking-widest text-[var(--muted)]">
-          <div>Active: {activeModel ? activeModel.display_name : 'None'}</div>
-          <div>CTX Target: {settings.ctx_size}</div>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 text-[10px] font-mono uppercase tracking-widest text-[var(--muted)]">
+          <div>{t('library.active', 'Active')}: {activeModel ? activeModel.display_name : 'None'}</div>
+          <div>{t('library.default', 'Default')}: {defaultModel ? defaultModel.display_name : 'None'}</div>
+          <div>{t('library.ctxTarget', 'CTX Target')}: {settings.ctx_size}</div>
         </div>
 
         <div className="grid gap-4">
@@ -137,6 +175,27 @@ export function LibraryPage() {
             const isCompatible = compatibility?.compatible ?? (model.available !== false);
             const reason = compatibility?.reasons?.[0];
             const ctxLimit = compatibility?.ctx_limit ?? model.metadata?.context_length;
+            const isDefault = defaultModelId === model.id;
+            const isLoading = loadingModelId === model.id && llmLoading;
+            const hasError = !!llmError && loadingModelId === model.id;
+            const stateLabel = hasError
+              ? t('library.state.error', 'Error')
+              : isActive
+                ? t('library.state.ready', 'Ready')
+                : isLoading
+                  ? t('library.state.loading', 'Loading')
+                  : model.available === false
+                    ? t('library.state.missing', 'Missing')
+                    : t('library.state.available', 'Available');
+            const stateTone = hasError
+              ? 'border-red-500/30 text-red-600'
+              : isActive
+                ? 'border-[#1f6d5a]/30 text-[#1f6d5a]'
+                : isLoading
+                  ? 'border-amber-500/40 text-amber-700'
+                  : model.available === false
+                    ? 'border-[var(--border)] text-[var(--muted)]'
+                    : 'border-[#1f6d5a]/30 text-[#1f6d5a]';
 
             return (
               <div key={model.id} className="border border-[var(--border)] rounded-xl p-4 bg-[var(--glass-strong)]">
@@ -146,13 +205,24 @@ export function LibraryPage() {
                     <div className="text-[10px] font-mono text-[var(--muted)]">{model.id}</div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => updateDefaultModel(model.id)}
+                      disabled={!isCompatible}
+                      className={`p-1.5 rounded-md border ${isDefault ? 'border-[#1f6d5a]/30 bg-[#1f6d5a]/10' : 'border-[var(--border)] bg-[var(--glass-strong)]'} disabled:opacity-40`}
+                      title={isDefault ? 'Default model' : 'Set as default'}
+                    >
+                      <Star className={`w-3.5 h-3.5 ${isDefault ? 'text-[#1f6d5a] fill-current' : 'text-[var(--muted)]'}`} />
+                    </button>
                     {isActive && (
                       <span className="text-[9px] px-2 py-1 rounded-full border border-[#1f6d5a]/30 text-[#1f6d5a] uppercase tracking-widest font-bold">
                         Active
                       </span>
                     )}
+                    <span className={`text-[9px] px-2 py-1 rounded-full border uppercase tracking-widest font-bold ${stateTone}`}>
+                      {stateLabel}
+                    </span>
                     <span className={`text-[9px] px-2 py-1 rounded-full border uppercase tracking-widest font-bold ${isCompatible ? 'border-[#1f6d5a]/30 text-[#1f6d5a]' : 'border-red-500/30 text-red-600'}`}>
-                      {isCompatible ? 'Compatible' : 'Blocked'}
+                      {isCompatible ? t('library.compatible', 'Compatible') : t('library.blocked', 'Blocked')}
                     </span>
                   </div>
                 </div>
