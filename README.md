@@ -5,6 +5,7 @@ The application lives in `USB_ASSISTANT/`.
 Start here:
 
 - `USB_ASSISTANT/README.md`
+- `IMPLEMENTATION_TRACKER.md` (progress tracker)
 
 Build a plug-and-play USB release:
 

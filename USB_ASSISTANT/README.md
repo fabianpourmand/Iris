@@ -23,6 +23,16 @@ Open: http://127.0.0.1:7777
 - Language pack manager and firmware update packs
 - Offline guides and diagnostics
 
+## Recent Updates (Jan 2026)
+
+- Responsive panel layout with auto-collapse and persistent panel state
+- Active Unit moved to header + category panel collapse control
+- Model Manager: default model selection + state badges (available/loading/ready/error)
+- Offline badge in header + offline guarantee note in Settings
+- UI localization: EN, ES, FR, DE, PT, RU, UK, FA, AR
+- Offline quick prompts that rotate per category + expanded guides
+- Chat list search and compact conversation layout
+
 ## Folder Layout
 
 - `models/` - place `.gguf` files here
@@ -53,6 +63,7 @@ cp -R dist/* ../static/
 ```
 
 The backend serves the UI from `static/`.
+If you are packaging the Rust binaries directly, also sync to `backend/static/` for embedded builds.
 
 ### Backend
 
