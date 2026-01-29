@@ -1,4 +1,4 @@
-export type LLMCategory = 'general' | 'coding' | 'medical' | 'mathematics' | 'chemistry' | 'uncensored' | 'survival' | 'planting' | 'building';
+export type LLMCategory = 'general' | 'reasoning' | 'coding' | 'medical' | 'stem' | 'survival' | 'building' | 'multilingual';
 
 export interface SystemInfo {
   cpu_name: string;

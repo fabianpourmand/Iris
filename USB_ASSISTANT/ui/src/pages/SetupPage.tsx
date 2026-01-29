@@ -1,20 +1,19 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Play, Zap, ShieldOff, Heart, ArrowLeft, Code2, Calculator, Beaker, ShieldAlert, Lightbulb, Cpu, CheckCircle2, Palette, Tent, Sprout, Hammer, type LucideIcon } from 'lucide-react';
+import { Play, Zap, ShieldOff, Heart, ArrowLeft, Code2, Brain, Atom, Globe, Lightbulb, Cpu, CheckCircle2, Palette, Tent, Hammer, type LucideIcon } from 'lucide-react';
 import { useSystemInfo, useModels } from '../hooks';
 import { PerformanceBadge, CategorySelector } from '../components';
 import type { BenchmarkResult, LLMCategory } from '../types';
 
 const categoryIcons: Record<string, LucideIcon> = {
-  medical: Heart,
-  coding: Code2,
   general: Lightbulb,
-  mathematics: Calculator,
-  chemistry: Beaker,
-  uncensored: ShieldAlert,
+  reasoning: Brain,
+  coding: Code2,
+  medical: Heart,
+  stem: Atom,
   survival: Tent,
-  planting: Sprout,
   building: Hammer,
+  multilingual: Globe,
 };
 
 type SetupStep = 'initial' | 'category' | 'models' | 'benchmark';
@@ -31,26 +30,24 @@ export function SetupPage() {
 
   const categoryColors: Record<string, string> = {
     general: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    reasoning: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
     coding: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
     medical: 'bg-red-500/10 text-red-400 border-red-500/20',
-    mathematics: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-    chemistry: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-    uncensored: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+    stem: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
     survival: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-    planting: 'bg-green-500/10 text-green-400 border-green-500/20',
     building: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    multilingual: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
   };
 
   const categoryNames: Record<LLMCategory, string> = {
     general: 'General',
+    reasoning: 'Reasoning',
     coding: 'Technical',
     medical: 'Medical',
-    mathematics: 'Mathematics',
-    chemistry: 'Chemistry',
-    uncensored: 'Unrestricted',
+    stem: 'STEM',
     survival: 'Survival',
-    planting: 'Agriculture',
     building: 'Building',
+    multilingual: 'Multilingual',
   };
 
   const runBenchmark = async (modelId: string) => {

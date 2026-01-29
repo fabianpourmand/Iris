@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import {
-  PanelLeft, PanelRight, PanelTop, Maximize2, Minimize2, FolderSearch, ShieldAlert, Trash2,
+  PanelLeft, PanelRight, PanelTop, Maximize2, Minimize2, FolderSearch, Trash2,
   Camera, X, Mic, Send, Plus, Loader2, ArrowLeft, Pencil, Check,
-  Sparkles, Heart, Code2, Calculator, Beaker, Tent, Sprout, Hammer, Lightbulb,
+  Sparkles, Heart, Code2, Brain, Atom, Tent, Hammer, Lightbulb, Globe,
   Layout, RotateCcw, Eye, Search, ChevronUp, ShieldCheck, type LucideIcon
 } from 'lucide-react';
 import Webcam from 'react-webcam';
@@ -74,26 +74,24 @@ const writeStoredBoolean = (key: string, value: boolean) => {
 const categoryCards: { id: ChatCategory; label: string; icon: LucideIcon; description: string }[] = [
   { id: 'auto', label: 'Auto', icon: Sparkles, description: 'IRIS chooses the clearest path for you.' },
   { id: 'general', label: 'General', icon: Lightbulb, description: 'Everyday questions, brainstorming, and planning.' },
+  { id: 'reasoning', label: 'Reasoning', icon: Brain, description: 'Deep thinking, step-by-step problem solving.' },
   { id: 'coding', label: 'Code', icon: Code2, description: 'Software insight, debugging, and architecture.' },
   { id: 'medical', label: 'Medical', icon: Heart, description: 'First-aid, symptoms, and care guidance.' },
-  { id: 'mathematics', label: 'Math', icon: Calculator, description: 'Equations, analysis, and quantitative help.' },
-  { id: 'chemistry', label: 'Chemistry', icon: Beaker, description: 'Formulas, lab sense, and reactions.' },
+  { id: 'stem', label: 'STEM', icon: Atom, description: 'Math, chemistry, physics, and scientific reasoning.' },
   { id: 'survival', label: 'Survival', icon: Tent, description: 'Wilderness skills, shelter, and rescue tips.' },
-  { id: 'planting', label: 'Planting', icon: Sprout, description: 'Gardening, crops, and food-production ideas.' },
   { id: 'building', label: 'Building', icon: Hammer, description: 'Construction, repairs, and DIY know-how.' },
-  { id: 'uncensored', label: 'Uncensored', icon: ShieldAlert, description: 'Open, unfiltered exploration when needed.' },
+  { id: 'multilingual', label: 'Multilingual', icon: Globe, description: 'Non-English languages and translation.' },
 ];
 
 const categoryLabels: Record<LLMCategory, string> = {
   general: 'General',
+  reasoning: 'Reasoning',
   coding: 'Code',
   medical: 'Medical',
-  mathematics: 'Math',
-  chemistry: 'Chemistry',
-  uncensored: 'Uncensored',
+  stem: 'STEM',
   survival: 'Survival',
-  planting: 'Planting',
   building: 'Building',
+  multilingual: 'Multilingual',
 };
 
 type QuickPrompt = {
@@ -123,6 +121,28 @@ const quickPromptsByCategory: Record<LLMCategory, QuickPrompt[]> = {
       title: 'Comms Script',
       description: 'Write a short check-in script.',
       prompt: 'Write a short check-in script for safety status and immediate needs when the network is down.'
+    },
+  ],
+  reasoning: [
+    {
+      title: 'Step-by-Step Solution',
+      description: 'Solve a complex problem methodically.',
+      prompt: 'Solve this problem step-by-step, showing your reasoning at each stage: [problem]'
+    },
+    {
+      title: 'Logic Proof',
+      description: 'Prove a statement using logical steps.',
+      prompt: 'Prove the following statement using clear logical steps and explain each inference: [statement]'
+    },
+    {
+      title: 'Debug Analysis',
+      description: 'Analyze and debug code systematically.',
+      prompt: 'Debug this code by analyzing the logic step-by-step and identifying the root cause: [code]'
+    },
+    {
+      title: 'Problem Breakdown',
+      description: 'Break down a complex question into parts.',
+      prompt: 'Break down this complex problem into smaller parts and solve each systematically: [problem]'
     },
   ],
   survival: [
@@ -186,31 +206,9 @@ const quickPromptsByCategory: Record<LLMCategory, QuickPrompt[]> = {
       prompt: 'Create a materials and tools list for a temporary roof patch using common hardware store items.'
     },
     {
-      title: 'Power Basics',
-      description: 'Offline electrical safety checklist.',
-      prompt: 'Provide an electrical safety checklist for diagnosing a tripped circuit without internet.'
-    }
-  ],
-  planting: [
-    {
-      title: 'Soil Quick Test',
-      description: 'Assess soil quickly in the field.',
-      prompt: 'Describe a quick soil assessment process using simple tools. Include texture, drainage, and pH clues.'
-    },
-    {
-      title: 'Watering Plan',
-      description: 'Conserve water over 7 days.',
-      prompt: 'Create a 7-day watering plan for a small garden with limited water.'
-    },
-    {
-      title: 'Crop Triage',
-      description: 'Prioritize crops during shortage.',
-      prompt: 'Help me prioritize which crops to save during a water shortage and why.'
-    },
-    {
-      title: 'Pest Response',
-      description: 'Offline pest control checklist.',
-      prompt: 'Provide a quick pest response checklist using safe, low-toxicity methods.'
+      title: 'Garden Planning',
+      description: 'Plan a small garden or crop area.',
+      prompt: 'Create a 7-day watering plan for a small garden with limited water and help me prioritize which crops to grow.'
     }
   ],
   coding: [
@@ -235,9 +233,9 @@ const quickPromptsByCategory: Record<LLMCategory, QuickPrompt[]> = {
       prompt: 'Summarize these logs into likely root causes and next diagnostic steps.'
     }
   ],
-  mathematics: [
+  stem: [
     {
-      title: 'Quick Formula',
+      title: 'Math Formula',
       description: 'Solve a formula and show steps.',
       prompt: 'Solve the following formula and show steps. Then provide a quick check for correctness.'
     },
@@ -247,58 +245,36 @@ const quickPromptsByCategory: Record<LLMCategory, QuickPrompt[]> = {
       prompt: 'Convert this table of measurements from imperial to metric and show the converted values.'
     },
     {
-      title: 'Estimate Check',
-      description: 'Sanity-check a numeric result.',
-      prompt: 'Estimate the result using back-of-the-envelope math and compare it to the given value.'
-    },
-    {
-      title: 'Step-by-step',
-      description: 'Explain a solution carefully.',
-      prompt: 'Explain the solution step-by-step with clear reasoning and notation.'
-    }
-  ],
-  chemistry: [
-    {
-      title: 'Reaction Safety',
+      title: 'Chemical Safety',
       description: 'Safety checklist for a reaction.',
       prompt: 'Provide a safety checklist for a basic chemical reaction in a field or classroom setting.'
     },
     {
-      title: 'Mixing Guide',
-      description: 'Prepare a solution safely.',
-      prompt: 'Describe how to prepare a simple solution safely, including dilution order and warnings.'
-    },
-    {
-      title: 'Labeling',
-      description: 'Create a container label template.',
-      prompt: 'Create a container label template with required safety and storage fields.'
-    },
-    {
-      title: 'Spill Response',
-      description: 'Quick spill response steps.',
-      prompt: 'Provide a quick spill response checklist for a small chemical spill.'
+      title: 'Scientific Analysis',
+      description: 'Analyze data step-by-step.',
+      prompt: 'Analyze this scientific data step-by-step with clear reasoning and notation.'
     }
   ],
-  uncensored: [
+  multilingual: [
     {
-      title: 'Open Research',
-      description: 'Explore a topic without filters.',
-      prompt: 'Provide an unfiltered overview of this topic, including controversial angles and risks.'
+      title: 'Translation',
+      description: 'Translate text accurately.',
+      prompt: 'Translate the following text while preserving context and cultural nuances: [text]'
     },
     {
-      title: 'Freeform Ideas',
-      description: 'Generate creative directions.',
-      prompt: 'Generate a list of unconventional approaches to solve this problem.'
+      title: 'Language Practice',
+      description: 'Practice conversation in another language.',
+      prompt: 'Help me practice conversational [language] with common phrases and corrections.'
     },
     {
-      title: 'Rapid Debate',
-      description: 'Argue both sides quickly.',
-      prompt: 'Present the strongest argument for and against this position in brief bullets.'
+      title: 'Cultural Context',
+      description: 'Explain cultural differences.',
+      prompt: 'Explain the cultural context and proper usage of this phrase in [language]: [phrase]'
     },
     {
-      title: 'Raw Notes',
-      description: 'Turn raw notes into an outline.',
-      prompt: 'Turn these raw notes into a structured outline without filtering.'
+      title: 'Document Review',
+      description: 'Review non-English text.',
+      prompt: 'Review this document in [language] and provide feedback on clarity and grammar.'
     }
   ],
 };
@@ -307,9 +283,13 @@ const quickPromptsByCategory: Record<LLMCategory, QuickPrompt[]> = {
 
 const preferredModelIds: Partial<Record<LLMCategory, string[]>> = {
   general: ['qwen3-8b', 'qwen2.5-7b-q4', 'qwen2.5-1.5b-q4', 'qwen2.5-0.5b-q4'],
-  coding: ['qwen2.5-coder-7b', 'deepseek-coder-6.7b'],
+  reasoning: ['qwq-32b', 'deepseek-r1-distill-qwen-7b', 'deepseek-r1-distill-qwen-32b'],
+  coding: ['qwen2.5-coder-7b', 'deepseek-coder-6.7b', 'qwen2.5-coder-32b'],
   medical: ['medichat-llama3-8b', 'openbio-llm-8b', 'medicine-llm-7b'],
-  mathematics: ['qwen2.5-math-3b'],
+  stem: ['qwen2.5-math-3b', 'deepseek-math-7b', 'llama-chemistry-8b'],
+  survival: ['survival-phi-3.8b'],
+  building: ['qwen2.5-7b-q4'],
+  multilingual: ['aya-23-8b', 'command-r-multilingual'],
 };
 
   const isChatCategory = (value: string | null): value is ChatCategory => {
@@ -319,26 +299,26 @@ const preferredModelIds: Partial<Record<LLMCategory, string[]>> = {
 
   const inferCategory = (text: string): LLMCategory => {
     const value = text.toLowerCase();
-    if (/(code|coding|bug|error|stack|compile|build|git|javascript|typescript|python|rust|api|database|sql)/.test(value)) {
+    if (/(solve|step-by-step|prove|logical|think|reason|deduce|analyze|proof|reasoning)/.test(value)) {
+      return 'reasoning';
+    }
+    if (/(code|coding|bug|error|stack|compile|build|git|javascript|typescript|python|rust|api|database|sql|debug)/.test(value)) {
       return 'coding';
     }
-    if (/(medical|symptom|injury|pain|first aid|bleeding|wound|medicine|fever)/.test(value)) {
+    if (/(medical|symptom|injury|pain|first aid|bleeding|wound|medicine|fever|doctor|health)/.test(value)) {
       return 'medical';
     }
-    if (/(math|equation|calculus|algebra|geometry|trigonometry|proof)/.test(value)) {
-      return 'mathematics';
+    if (/(math|equation|calculus|algebra|geometry|trigonometry|chemistry|chemical|reaction|molecule|compound|lab|physics|science)/.test(value)) {
+      return 'stem';
     }
-    if (/(chemistry|chemical|reaction|molecule|compound|lab)/.test(value)) {
-      return 'chemistry';
-    }
-    if (/(survival|wilderness|shelter|fire|water|rescue|signal|camp)/.test(value)) {
+    if (/(survival|wilderness|shelter|fire|water|rescue|signal|camp|emergency)/.test(value)) {
       return 'survival';
     }
-    if (/(plant|garden|soil|seed|harvest|grow|crop|irrigat)/.test(value)) {
-      return 'planting';
-    }
-    if (/(build|construction|repair|plumb|electrical|roof|lumber|shed|deck)/.test(value)) {
+    if (/(build|construction|repair|plumb|electrical|roof|lumber|shed|deck|plant|garden|soil|seed|harvest|grow|crop|farm)/.test(value)) {
       return 'building';
+    }
+    if (/(translate|translation|language|español|français|deutsch|português|русский|العربية|multilingual)/.test(value)) {
+      return 'multilingual';
     }
     return 'general';
   };
@@ -531,8 +511,8 @@ export function ChatPage() {
 
   const compatibleByCategory = useMemo(() => {
     const map: Record<LLMCategory, ModelInfo[]> = {
-      general: [], coding: [], medical: [], mathematics: [], chemistry: [],
-      uncensored: [], survival: [], planting: [], building: []
+      general: [], reasoning: [], coding: [], medical: [], stem: [],
+      survival: [], building: [], multilingual: []
     };
     for (const model of compatibleModels) {
       map[model.category].push(model);

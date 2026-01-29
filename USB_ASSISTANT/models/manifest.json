@@ -24,18 +24,6 @@
     "download_url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF"
   },
   {
-    "id": "hermes3-llama3.2-3b-abliterated",
-    "display_name": "Hermes 3 Llama 3.2 3B - Abliterated",
-    "filename": "Hermes-3-Llama-3.2-3B-abliterated.Q4_K_M.gguf",
-    "min_ram_gb": 4,
-    "recommended_ctx": 2048,
-    "category": "uncensored",
-    "uncensored": true,
-    "license": "Apache-2.0",
-    "notes": "Uncensored 3B model. Emergency decision-making, survival scenarios.",
-    "download_url": "https://huggingface.co/mradermacher/Hermes-3-Llama-3.2-3B-abliterated-GGUF"
-  },
-  {
     "id": "qwen2.5-7b-q4",
     "display_name": "Qwen 2.5 Medium (7B)",
     "filename": "qwen2.5-7b-instruct-q4_k_m.gguf",
@@ -46,54 +34,6 @@
     "license": "Apache-2.0",
     "notes": "Excellent general-purpose model. Great reasoning and writing.",
     "download_url": "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF"
-  },
-  {
-    "id": "lexi-llama3-8b-uncensored",
-    "display_name": "Lexi Llama 3 8B - Uncensored",
-    "filename": "Lexi-Llama-3-8B-Uncensored.Q4_K_M.gguf",
-    "min_ram_gb": 8,
-    "recommended_ctx": 8192,
-    "category": "uncensored",
-    "uncensored": true,
-    "license": "Llama-3",
-    "notes": "General uncensored knowledge. Emergency protocols, technical guidance.",
-    "download_url": "https://huggingface.co/bartowski/Lexi-Llama-3-8B-Uncensored-GGUF"
-  },
-  {
-    "id": "wizardlm-7b-uncensored",
-    "display_name": "WizardLM 7B - Uncensored",
-    "filename": "wizardlm-7b-uncensored.Q4_K_M.gguf",
-    "min_ram_gb": 8,
-    "recommended_ctx": 4096,
-    "category": "uncensored",
-    "uncensored": true,
-    "license": "Llama-2",
-    "notes": "Instruction-following without filters. Technical docs, repair guides.",
-    "download_url": "https://huggingface.co/TheBloke/WizardLM-7B-uncensored-GGUF"
-  },
-  {
-    "id": "hermes3-llama3.1-8b-lorablated",
-    "display_name": "Hermes 3 Llama 3.1 8B - Lorablated",
-    "filename": "Hermes-3-Llama-3.1-8B-lorablated.Q4_K_M.gguf",
-    "min_ram_gb": 8,
-    "recommended_ctx": 8192,
-    "category": "uncensored",
-    "uncensored": true,
-    "license": "Llama-3.1",
-    "notes": "Advanced reasoning without safety filters. Complex decision-making.",
-    "download_url": "https://huggingface.co/mlabonne/Hermes-3-Llama-3.1-8B-lorablated-GGUF"
-  },
-  {
-    "id": "dolphin-2.9.3-mistral-nemo-12b",
-    "display_name": "Dolphin 2.9.3 Mistral Nemo 12B - Uncensored",
-    "filename": "dolphin-2.9.3-mistral-nemo-12b.Q4_K_M.gguf",
-    "min_ram_gb": 12,
-    "recommended_ctx": 32768,
-    "category": "coding",
-    "uncensored": true,
-    "license": "Apache-2.0",
-    "notes": "Uncensored coding specialist. System repair, electronics troubleshooting.",
-    "download_url": "https://huggingface.co/dphn/dolphin-2.9.3-mistral-nemo-12b-gguf"
   },
   {
     "id": "qwen2.5-14b-q4",
@@ -108,30 +48,6 @@
     "download_url": "https://huggingface.co/Qwen/Qwen2.5-14B-Instruct-GGUF"
   },
   {
-    "id": "medicine-llm-7b",
-    "display_name": "Medicine LLM 7B",
-    "filename": "medicine-llm-7b.Q4_K_M.gguf",
-    "min_ram_gb": 8,
-    "recommended_ctx": 4096,
-    "category": "medical",
-    "uncensored": false,
-    "license": "Llama-1",
-    "notes": "Biomedical specialist. Emergency protocols, drug interactions.",
-    "download_url": "https://huggingface.co/TheBloke/medicine-LLM-GGUF"
-  },
-  {
-    "id": "medicine-llm-13b",
-    "display_name": "Medicine LLM 13B",
-    "filename": "medicine-llm-13b.Q4_K_M.gguf",
-    "min_ram_gb": 16,
-    "recommended_ctx": 4096,
-    "category": "medical",
-    "uncensored": false,
-    "license": "Llama-1",
-    "notes": "Advanced biomedical knowledge. Medical reference, emergency medicine.",
-    "download_url": "https://huggingface.co/TheBloke/medicine-LLM-13B-GGUF"
-  },
-  {
     "id": "openbio-llm-8b",
     "display_name": "OpenBioLLM 8B (Llama 3)",
     "filename": "Llama3-OpenBioLLM-8B.Q4_K_M.gguf",
@@ -142,18 +58,6 @@
     "license": "Llama-3",
     "notes": "Biomedical & life sciences. Biology, biochemistry applications.",
     "download_url": "https://huggingface.co/MoMonir/Llama3-OpenBioLLM-8B-GGUF"
-  },
-  {
-    "id": "medichat-llama3-8b",
-    "display_name": "Medichat Llama3 8B",
-    "filename": "Medichat-Llama3-8B.Q4_K_M.gguf",
-    "min_ram_gb": 8,
-    "recommended_ctx": 8192,
-    "category": "medical",
-    "uncensored": false,
-    "license": "Llama-3",
-    "notes": "Medical consultation. Symptom analysis, health guidance.",
-    "download_url": "https://huggingface.co/QuantFactory/Medichat-Llama3-8B-GGUF"
   },
   {
     "id": "qwen2.5-coder-7b",
@@ -178,18 +82,6 @@
     "license": "Deepseek",
     "notes": "Lightweight coding assistant for constrained systems.",
     "download_url": "https://huggingface.co/TheBloke/deepseek-coder-6.7B-instruct-GGUF"
-  },
-  {
-    "id": "deepseek-coder-v2-instruct",
-    "display_name": "DeepSeek Coder V2 Instruct",
-    "filename": "DeepSeek-Coder-V2-Instruct.Q4_K_M.gguf",
-    "min_ram_gb": 16,
-    "recommended_ctx": 131072,
-    "category": "coding",
-    "uncensored": false,
-    "license": "Deepseek",
-    "notes": "338 languages, 128K context. Comparable to GPT-4 Turbo for code.",
-    "download_url": "https://huggingface.co/LoneStriker/DeepSeek-Coder-V2-Instruct-GGUF"
   },
   {
     "id": "deepseek-math-7b",
@@ -228,30 +120,6 @@
     "download_url": "https://huggingface.co/QuantFactory/Llama3.1-BestMix-Chem-Einstein-8B-GGUF"
   },
   {
-    "id": "qwen3-8b",
-    "display_name": "Qwen 3 8B",
-    "filename": "qwen3-8b-q4_k_m.gguf",
-    "min_ram_gb": 8,
-    "recommended_ctx": 8192,
-    "category": "general",
-    "uncensored": false,
-    "license": "Apache-2.0",
-    "notes": "Latest Qwen. Thinking mode for reasoning, dialogue mode for chat.",
-    "download_url": "https://huggingface.co/Qwen/Qwen3-8B-GGUF"
-  },
-  {
-    "id": "dolphin3.0-qwen2.5-0.5b",
-    "display_name": "Dolphin 3.0 Qwen 0.5B - Uncensored",
-    "filename": "dolphin3.0-qwen2.5-0.5b-q4_k_m.gguf",
-    "min_ram_gb": 4,
-    "recommended_ctx": 2048,
-    "category": "uncensored",
-    "uncensored": true,
-    "license": "Apache-2.0",
-    "notes": "Tiny uncensored model for Raspberry Pi and ultra-low power devices.",
-    "download_url": "https://huggingface.co/cognitivecomputations/dolphin-3.0-qwen2.5-0.5b-GGUF"
-  },
-  {
     "id": "dolphin3.0-qwen2.5-1.5b",
     "display_name": "Dolphin 3.0 Qwen 1.5B - Uncensored",
     "filename": "dolphin3.0-qwen2.5-1.5b-q4_k_m.gguf",
@@ -262,18 +130,6 @@
     "license": "Apache-2.0",
     "notes": "Small uncensored model for 8GB systems. Portable unrestricted knowledge.",
     "download_url": "https://huggingface.co/cognitivecomputations/dolphin-3.0-qwen2.5-1.5b-GGUF"
-  },
-  {
-    "id": "qwen2.5-7b-abliterated",
-    "display_name": "Qwen 2.5 7B - Abliterated",
-    "filename": "Qwen2.5-7B-Instruct-abliterated-v2.Q4_K_M.gguf",
-    "min_ram_gb": 16,
-    "recommended_ctx": 8192,
-    "category": "uncensored",
-    "uncensored": true,
-    "license": "Apache-2.0",
-    "notes": "Uncensored Qwen 2.5 7B. Mid-range unrestricted reasoning and guidance.",
-    "download_url": "https://huggingface.co/huihui-ai/Qwen2.5-7B-Instruct-abliterated-v2-GGUF"
   },
   {
     "id": "qwen2.5-14b-abliterated",

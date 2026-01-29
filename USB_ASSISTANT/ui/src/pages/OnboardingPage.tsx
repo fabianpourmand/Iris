@@ -6,13 +6,13 @@ import { useI18n, languageOptions, type LanguageCode } from '../i18n';
 
 const categoryOptions: { id: LLMCategory; label: string }[] = [
   { id: 'general', label: 'General' },
-  { id: 'medical', label: 'Medical' },
+  { id: 'reasoning', label: 'Reasoning' },
   { id: 'coding', label: 'Coding' },
-  { id: 'mathematics', label: 'Math' },
-  { id: 'chemistry', label: 'Chemistry' },
+  { id: 'medical', label: 'Medical' },
+  { id: 'stem', label: 'STEM' },
   { id: 'survival', label: 'Survival' },
   { id: 'building', label: 'Building' },
-  { id: 'planting', label: 'Planting' },
+  { id: 'multilingual', label: 'Multilingual' },
 ];
 
 export function OnboardingPage() {

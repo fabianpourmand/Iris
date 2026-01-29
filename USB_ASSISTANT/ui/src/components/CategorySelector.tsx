@@ -1,4 +1,4 @@
-import { Heart, Code2, Lightbulb, Calculator, Beaker, ShieldAlert, Tent, Sprout, Hammer, type LucideIcon } from 'lucide-react';
+import { Heart, Code2, Lightbulb, Brain, Atom, Tent, Hammer, Globe, type LucideIcon } from 'lucide-react';
 import type { LLMCategory } from '../types';
 
 interface CategoryOption {
@@ -13,6 +13,33 @@ interface CategoryOption {
 
 const categories: CategoryOption[] = [
   {
+    id: 'general',
+    name: 'General',
+    description: 'Writing, reasoning, information, and everyday questions',
+    icon: Lightbulb,
+    color: 'text-blue-400',
+    darkColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/20',
+  },
+  {
+    id: 'reasoning',
+    name: 'Reasoning',
+    description: 'Deep thinking, step-by-step analysis, complex problem-solving',
+    icon: Brain,
+    color: 'text-purple-400',
+    darkColor: 'bg-purple-500/10',
+    borderColor: 'border-purple-500/20',
+  },
+  {
+    id: 'coding',
+    name: 'Coding',
+    description: 'Programming, debugging, software development',
+    icon: Code2,
+    color: 'text-green-400',
+    darkColor: 'bg-green-500/10',
+    borderColor: 'border-green-500/20',
+  },
+  {
     id: 'medical',
     name: 'Medical',
     description: 'Emergency protocols, first aid, drug interactions, diagnosis support',
@@ -20,6 +47,15 @@ const categories: CategoryOption[] = [
     color: 'text-red-400',
     darkColor: 'bg-red-500/10',
     borderColor: 'border-red-500/20',
+  },
+  {
+    id: 'stem',
+    name: 'STEM',
+    description: 'Mathematics, chemistry, physics, scientific reasoning',
+    icon: Atom,
+    color: 'text-yellow-400',
+    darkColor: 'bg-yellow-500/10',
+    borderColor: 'border-yellow-500/20',
   },
   {
     id: 'survival',
@@ -31,67 +67,22 @@ const categories: CategoryOption[] = [
     borderColor: 'border-orange-500/20',
   },
   {
-    id: 'planting',
-    name: 'Agriculture',
-    description: 'Farming, gardening, crop management, food preservation',
-    icon: Sprout,
-    color: 'text-green-400',
-    darkColor: 'bg-green-500/10',
-    borderColor: 'border-green-500/20',
-  },
-  {
     id: 'building',
     name: 'Building',
-    description: 'Construction, repairs, DIY projects, infrastructure',
+    description: 'Construction, repairs, DIY projects, agriculture',
     icon: Hammer,
     color: 'text-amber-400',
     darkColor: 'bg-amber-500/10',
     borderColor: 'border-amber-500/20',
   },
   {
-    id: 'coding',
-    name: 'Technical',
-    description: 'Programming, electronics, system repair, troubleshooting',
-    icon: Code2,
-    color: 'text-emerald-400',
-    darkColor: 'bg-emerald-500/10',
-    borderColor: 'border-emerald-500/20',
-  },
-  {
-    id: 'general',
-    name: 'General',
-    description: 'Writing, reasoning, information, multilingual support',
-    icon: Lightbulb,
-    color: 'text-blue-400',
-    darkColor: 'bg-blue-500/10',
-    borderColor: 'border-blue-500/20',
-  },
-  {
-    id: 'mathematics',
-    name: 'Mathematics',
-    description: 'Engineering calculations, physics, mathematical reasoning',
-    icon: Calculator,
-    color: 'text-purple-400',
-    darkColor: 'bg-purple-500/10',
-    borderColor: 'border-purple-500/20',
-  },
-  {
-    id: 'chemistry',
-    name: 'Chemistry',
-    description: 'Chemical formulas, reactions, laboratory procedures',
-    icon: Beaker,
-    color: 'text-cyan-400',
-    darkColor: 'bg-cyan-500/10',
-    borderColor: 'border-cyan-500/20',
-  },
-  {
-    id: 'uncensored',
-    name: 'Unrestricted',
-    description: 'Unfiltered knowledge, no safety limits',
-    icon: ShieldAlert,
-    color: 'text-rose-400',
-    darkColor: 'bg-rose-500/10',
-    borderColor: 'border-rose-500/20',
+    id: 'multilingual',
+    name: 'Multilingual',
+    description: 'Non-English languages, translation, cultural context',
+    icon: Globe,
+    color: 'text-pink-400',
+    darkColor: 'bg-pink-500/10',
+    borderColor: 'border-pink-500/20',
   },
 ];
 
